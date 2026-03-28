@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<!--
+  index.html — FoodFlow KC Main Page
+  Desktop web app for Kansas City residents to compare food access
+  options by ZIP code.  Uses Tailwind CSS via CDN (no build step).
+-->
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FoodFlow KC — Affordable Food Finder</title>
+  <meta name="description" content="Find the cheapest food options near you in Kansas City — pantries, stores, and delivery ranked by cost." />
+
+  <!-- Tailwind CSS via CDN (no build step) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          animation: {
+            slideDown: 'slideDown 0.3s ease-out',
+            fadeOut:   'fadeOut 0.3s ease-out forwards',
+            pulse:     'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            slideDown: {
+              '0%':   { opacity: '0', transform: 'translateY(-10px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            fadeOut: {
+              '0%':   { opacity: '1' },
+              '100%': { opacity: '0', transform: 'translateY(-10px)' },
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Inter font from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex flex-col">
+
+  <!-- ═══════════════════════════════════════════════════════
+       NAVIGATION BAR
+       ═══════════════════════════════════════════════════════ -->
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo + Title -->
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 bg-gradient-to-br from-blue-600 to-emerald-500 rounded-lg flex items-center justify-center shadow-sm">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-lg font-bold text-gray-900 leading-tight" data-i18n="nav.title">FoodFlow KC</h1>
+            <p class="text-xs text-gray-500 leading-tight" data-i18n="nav.tagline">Find affordable food near you</p>
+          </div>
+        </div>
+
+        <!-- Language Toggle -->
+        <button
+          id="lang-toggle"
+          class="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg transition-colors"
+          aria-label="Toggle language"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+          </svg>
+          <span data-i18n="nav.lang_toggle">ES</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════
+       HERO / ZIP CODE ENTRY
+       ═══════════════════════════════════════════════════════ -->
+  <header class="bg-gradient-to-br from-blue-600 via-blue-700 to-emerald-600 text-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+      <h2 class="text-3xl sm:text-4xl font-extrabold mb-3" data-i18n="zip.heading">
+        Enter Your ZIP Code
+      </h2>
+      <p class="text-blue-100 text-lg mb-8 max-w-xl mx-auto" data-i18n="nav.tagline">
+        Find affordable food near you
+      </p>
+
+      <!-- ZIP Input Group -->
+      <div class="flex items-center justify-center gap-3 max-w-md mx-auto">
+        <input
+          id="zip-input"
+          type="text"
+          inputmode="numeric"
+          maxlength="5"
+          data-i18n="zip.placeholder"
+          placeholder="e.g. 64130"
+          class="flex-1 px-5 py-3.5 rounded-xl text-gray-900 text-lg font-medium
+                 placeholder-gray-400 border-2 border-transparent
+                 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-300/30
+                 shadow-lg transition-all"
+          autocomplete="off"
+        />
+        <button
+          id="zip-btn"
+          class="px-6 py-3.5 bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600
+                 text-white font-bold rounded-xl shadow-lg
+                 transition-all hover:shadow-xl hover:-translate-y-0.5
+                 focus:outline-none focus:ring-4 focus:ring-emerald-300/50"
+          data-i18n="zip.button"
+        >
+          Find Food Options
+        </button>
+      </div>
+
+      <!-- Error Message -->
+      <p id="zip-error" class="mt-3 text-sm text-red-200 font-medium hidden"></p>
+
+      <!-- Quick ZIP hints for demo -->
+      <p class="mt-4 text-blue-200 text-xs">
+        Try: <button class="underline hover:text-white zip-hint" data-zip="64130">64130</button>,
+        <button class="underline hover:text-white zip-hint" data-zip="64110">64110</button>, or
+        <button class="underline hover:text-white zip-hint" data-zip="64108">64108</button>
+      </p>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════
+       LOADING SPINNER
+       ═══════════════════════════════════════════════════════ -->
+  <div id="loading-spinner" class="hidden py-16 text-center">
+    <div class="inline-flex items-center gap-3 text-blue-600">
+      <svg class="animate-spin h-6 w-6" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+      </svg>
+      <span class="text-lg font-medium">Searching...</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       RESULTS SECTION
+       (hidden until a ZIP search completes)
+       ═══════════════════════════════════════════════════════ -->
+  <main id="results-section" class="hidden flex-1">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+
+      <!-- ── Produce Alert Banner ─────────────────────── -->
+      <div id="alert-container"></div>
+
+      <!-- ── Need Score Badge + High-Need Alert ───────── -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <!-- Badge -->
+        <div id="need-badge" class="hidden flex items-center gap-3 px-5 py-3 rounded-xl shadow-sm border">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider opacity-70" data-i18n="score.label">Need Score</p>
+            <p id="need-score" class="text-3xl font-extrabold leading-none">—</p>
+          </div>
+          <div class="w-px h-10 bg-current opacity-20"></div>
+          <div class="text-sm font-medium opacity-80">
+            <span>/100</span>
+          </div>
+        </div>
+
+        <!-- High-need alert -->
+        <div id="need-alert" class="hidden flex items-center gap-2 px-4 py-2 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm animate-slideDown">
+          <span class="text-lg">⚠️</span>
+          <div>
+            <p class="font-semibold" data-i18n="score.high_alert">High Need Area</p>
+            <p class="text-xs text-red-600" data-i18n="score.high_alert_desc">This ZIP code is in a high-need area. More free resources are available below.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Cost Comparison Table ────────────────────── -->
+      <section>
+        <h3 class="text-xl font-bold text-gray-900 mb-4" data-i18n="table.heading">Food Access Options</h3>
+        <p class="text-sm text-gray-500 mb-4">
+          Click any <span class="font-medium text-gray-700">pantry</span> row to see full details.
+        </p>
+        <div id="table-container"></div>
+      </section>
+
+      <!-- ── Community Priority Vote ──────────────────── -->
+      <section class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-gray-900 mb-2" data-i18n="vote.heading">Community Priority Vote</h3>
+        <p class="text-sm text-gray-500 mb-5" data-i18n="vote.desc">Help us decide which neighborhoods should receive priority food access support.</p>
+
+        <form id="vote-form" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="vote.name">Your Name</label>
+            <input type="text" required class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="vote.zip">Your ZIP</label>
+            <input type="text" required maxlength="5" inputmode="numeric" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+              <span data-i18n="vote.support">I support priority designation</span>
+            </label>
+            <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors" data-i18n="vote.submit">
+              Submit Vote
+            </button>
+          </div>
+        </form>
+        <p id="vote-message" class="hidden mt-4 text-emerald-600 font-semibold text-sm"></p>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════════════ -->
+  <footer class="bg-gray-900 text-gray-400 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm space-y-1">
+      <p class="text-gray-300 font-medium" data-i18n="footer.text">FoodFlow KC — Connecting Kansas City to affordable food.</p>
+      <p class="text-xs" data-i18n="footer.disclaimer">Data sourced from public APIs. Availability may vary.</p>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SCRIPTS (order matters — i18n first, app.js last)
+       ═══════════════════════════════════════════════════════ -->
+  <script src="js/i18n.js"></script>
+  <script src="js/table.js"></script>
+  <script src="js/cards.js"></script>
+  <script src="js/alerts.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- Quick-demo: ZIP hint buttons auto-fill input -->
+  <script>
+    document.querySelectorAll('.zip-hint').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('zip-input').value = btn.dataset.zip;
+        document.getElementById('zip-btn').click();
+      });
+    });
+  </script>
+
+</body>
+</html>
