@@ -21,6 +21,51 @@
 
 ---
 
+## Phase 2b — Frontend: Delivery Table (Person 2)
+
+**Goal:** Render `delivery_options` from API as a second table below the main options table.
+**Triggered by:** `delivery_necessity_flag: true` in API response → show "Delivery may be your best option" banner.
+
+### Tasks
+- [ ] `frontend/js/delivery.js` — new module, renders `delivery_options` array as a second table
+  - Columns: Provider | SNAP/EBT | Delivery Fee | Order Min | Est. Total | Same-Day
+  - SNAP badge (green pill) if `snap_accepted: true`; EBT badge if `ebt_accepted: true`
+  - Cost tier color coding matches existing table (free=green, low=yellow, market=red)
+- [ ] `frontend/index.html` — add `<div id="delivery-container">` below `<div id="table-container">`
+- [ ] `frontend/js/app.js` — call `delivery.render(data.delivery_options, elDeliveryContainer)` in `_renderResults()`
+  - Show/hide `delivery-container` based on `data.delivery_necessity_flag`
+  - Add `elDeliveryContainer` to DOM refs in `init()`
+- [ ] `frontend/js/i18n.js` — add EN/ES strings for delivery table headers and SNAP/EBT labels
+- [ ] "Why delivery?" tooltip — show when `delivery_necessity_flag: true`:
+  *"Based on your ZIP, fewer than 2 transit-accessible pantries are nearby. Delivery may be your most accessible option."*
+
+**Checkpoint:** ZIP 64130 shows both tables; delivery table has SNAP badges on Walmart/Amazon/Dillons rows.
+
+### Mock data for standalone dev
+Add `delivery_options` and `delivery_necessity_flag: true` to the existing `MOCK["64130"]` object in `app.js`:
+```js
+delivery_necessity_flag: true,
+delivery_options: [
+  { name: "Walmart Grocery", snap_accepted: true, ebt_accepted: true,
+    delivery_fee: 7.95, order_minimum: 35.00, estimated_weekly_total: 42.95,
+    same_day: true, cost_tier: "low", serves_zip: true, notes: "SNAP/EBT accepted" },
+  { name: "Amazon Fresh", snap_accepted: true, ebt_accepted: true,
+    delivery_fee: 9.95, order_minimum: 35.00, estimated_weekly_total: 44.95,
+    same_day: true, cost_tier: "market", serves_zip: true, notes: "Free with Prime; EBT accepted" },
+  { name: "Instacart (Aldi/Price Chopper)", snap_accepted: true, ebt_accepted: false,
+    delivery_fee: 5.99, order_minimum: 10.00, estimated_weekly_total: 15.99,
+    same_day: true, cost_tier: "low", serves_zip: true, notes: "Fee varies $3.99–$9.99" },
+  { name: "Dillons/Kroger", snap_accepted: true, ebt_accepted: true,
+    delivery_fee: 9.95, order_minimum: 35.00, estimated_weekly_total: 44.95,
+    same_day: true, cost_tier: "market", serves_zip: true, notes: "SNAP/EBT accepted" },
+  { name: "Hy-Vee Aisles Online", snap_accepted: false, ebt_accepted: false,
+    delivery_fee: 9.95, order_minimum: 24.95, estimated_weekly_total: 34.90,
+    same_day: true, cost_tier: "market", serves_zip: true, notes: "No SNAP/EBT currently" }
+]
+```
+
+---
+
 ## Phase 2 — ML: Need Score Model (10:30–11:30)
 
 **Goal:** `need_score(zip) → int 0–100` working for all KC ZIPs.

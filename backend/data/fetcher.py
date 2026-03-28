@@ -309,6 +309,13 @@ def _mock_demographics() -> list[dict]:
         {"zip": "64150", "poverty_rate": 0.08, "no_vehicle_pct": 0.07},
         {"zip": "64151", "poverty_rate": 0.09, "no_vehicle_pct": 0.08},
         {"zip": "64152", "poverty_rate": 0.05, "no_vehicle_pct": 0.05},
+        # Kansas City, Kansas (KCK) — from data brief
+        {"zip": "66101", "poverty_rate": 0.446, "no_vehicle_pct": 0.48},
+        {"zip": "66105", "poverty_rate": 0.398, "no_vehicle_pct": 0.51},
+        {"zip": "66102", "poverty_rate": 0.32, "no_vehicle_pct": 0.36},
+        {"zip": "66103", "poverty_rate": 0.28, "no_vehicle_pct": 0.31},
+        {"zip": "66104", "poverty_rate": 0.29, "no_vehicle_pct": 0.33},
+        {"zip": "66106", "poverty_rate": 0.31, "no_vehicle_pct": 0.35},
     ]
 
 

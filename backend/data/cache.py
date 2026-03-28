@@ -221,6 +221,22 @@ def load_all() -> None:
     for row in fetch_demographics():
         zip_code, vals = _normalize_demographics(row)
         AppCache.demographics[zip_code] = vals
+
+    # Supplement high-priority KCK ZIPs that the challenge API omits.
+    # Values sourced directly from the KC Regional Data Brief (March 28, 2026).
+    _KCK_SUPPLEMENT: dict[str, dict] = {
+        "66101": {"poverty_rate": 0.446, "no_vehicle_pct": 0.48},
+        "66105": {"poverty_rate": 0.398, "no_vehicle_pct": 0.51},
+        "66102": {"poverty_rate": 0.32,  "no_vehicle_pct": 0.36},
+        "66103": {"poverty_rate": 0.28,  "no_vehicle_pct": 0.31},
+        "66104": {"poverty_rate": 0.29,  "no_vehicle_pct": 0.33},
+        "66106": {"poverty_rate": 0.31,  "no_vehicle_pct": 0.35},
+    }
+    for zip_code, vals in _KCK_SUPPLEMENT.items():
+        if zip_code not in AppCache.demographics:
+            AppCache.demographics[zip_code] = vals
+            logger.info("  supplemented KCK demographics for %s", zip_code)
+
     logger.info("  demographics: %d ZIPs", len(AppCache.demographics))
 
     AppCache.calls_311 = _normalize_311(fetch_311_calls())

@@ -12,14 +12,22 @@ A hackathon project (Track: The Architect) — a desktop web app for Kansas City
 
 ### Backend
 ```bash
+# Create and activate virtualenv (first time only)
+python -m venv .venv
+.venv/Scripts/activate  # Windows
+# source .venv/bin/activate  # macOS/Linux
+
 # Install dependencies
 pip install -r backend/requirements.txt
 
+# Set up .env (see backend/CLAUDE.md for required vars)
+# Create .env in project root with CHALLENGE_API_BASE=https://aipromptchamp.com/api
+
 # Run the FastAPI server (serves frontend as static files)
-uvicorn backend.main:app --reload
+.venv/Scripts/uvicorn backend.main:app --reload
 
 # Run with explicit host/port
-uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+.venv/Scripts/uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### Frontend
@@ -59,17 +67,29 @@ GET /api/options?zip=64130
   "options": [{ "name", "type", "cost_tier", "est_cost", "distance_mi",
                 "transit_accessible", "languages", "id_required",
                 "cold_storage", "hours", "address" }],
-  "produce_alert": { "active", "pounds", "expires_in_hrs", "top_drop_locations" }
+  "produce_alert": { "active", "pounds", "expires_in_hrs", "top_drop_locations" },
+  "delivery_necessity_flag": true,
+  "delivery_options": [{ "name", "snap_accepted", "ebt_accepted", "delivery_fee",
+                         "order_minimum", "estimated_weekly_total", "same_day",
+                         "cost_tier", "serves_zip", "notes" }]
 }
 ```
 **Rule:** Add fields only — never rename or remove fields once frozen.
+
+### Delivery Feature
+- `data/delivery_fetcher.py` — static KC delivery providers (Walmart, Amazon Fresh, Instacart, Dillons, Hy-Vee)
+- `delivery_necessity_flag` = true when ZIP has >35% no-vehicle households AND <2 transit-accessible pantries nearby
+- Frontend ZIP validation accepts both `641xx` (KCMO) and `661xx` (KCK) — backend does too
+- Tests in `backend/tests/` — run with `pytest backend/tests/`
 
 ### ML Design
 - No model training at runtime — precomputed weighted sum using scikit-learn/numpy
 - Need Score features: food desert severity, poverty rate, % no-vehicle households, 311 distress call volume, recent store closures
 - All features normalized 0–1, cache computed scores for all KC ZIPs at startup
 
-### Git Branches
-- `p1/backend` — Person 1
-- `p2/frontend` — Person 2
-- One merge to `main` at lunch sync (12PM)
+### Cache Reload
+`supply-alerts` is cached at startup. To pick up fresh data, restart the server:
+```bash
+# Ctrl+C then:
+.venv/Scripts/uvicorn backend.main:app --reload
+```

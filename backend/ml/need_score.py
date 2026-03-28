@@ -94,3 +94,36 @@ def get_score(zip_code: str) -> int:
     """Convenience lookup — returns cached score or 0 if ZIP not found."""
     from backend.data.cache import AppCache
     return AppCache.need_scores.get(zip_code, 0)
+
+
+def compute_delivery_necessity(no_vehicle_pct: float, transit_pantry_count: int) -> bool:
+    """
+    Determine if delivery services are a necessity for a given area.
+
+    Rule: (no_vehicle_pct > 0.35) AND (transit_accessible_pantry_count < 2)
+    """
+    return no_vehicle_pct > 0.35 and transit_pantry_count < 2
+
+
+def get_delivery_necessity_for_zip(zip_code: str) -> bool:
+    """
+    Look up demographics and transit data from cache, then compute
+    whether delivery is a necessity for the given ZIP.
+    """
+    from backend.data.cache import AppCache
+
+    demo = AppCache.demographics.get(zip_code)
+    if demo is None:
+        return False
+
+    no_vehicle_pct: float = demo.get("no_vehicle_pct", 0.0)
+
+    # Count pantries in this ZIP that have a transit link
+    transit_pantry_count = 0
+    for pantry in AppCache.pantries:
+        if pantry.get("zip") == zip_code:
+            pantry_id = pantry.get("id", "")
+            if pantry_id in AppCache.pantry_transit:
+                transit_pantry_count += 1
+
+    return compute_delivery_necessity(no_vehicle_pct, transit_pantry_count)

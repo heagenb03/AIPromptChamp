@@ -34,11 +34,26 @@ class ProduceAlert(BaseModel):
     top_drop_locations: list[DropLocation] = Field(default_factory=list)
 
 
+class DeliveryOption(BaseModel):
+    name: str
+    snap_accepted: bool
+    ebt_accepted: bool
+    delivery_fee: float
+    order_minimum: float
+    estimated_weekly_total: float
+    same_day: bool
+    cost_tier: Literal["free", "low", "market"]
+    serves_zip: bool
+    notes: str
+
+
 class OptionsResponse(BaseModel):
     zip: str
     need_score: int
     options: list[FoodOption]
     produce_alert: ProduceAlert
+    delivery_necessity_flag: bool = False
+    delivery_options: list[DeliveryOption] = Field(default_factory=list)
 
 
 class AlertsResponse(BaseModel):

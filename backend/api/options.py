@@ -7,8 +7,10 @@ import logging
 from fastapi import APIRouter, HTTPException, Query
 
 from backend.data.cache import AppCache
-from backend.ml.need_score import get_score
+from backend.data.delivery_fetcher import filter_providers_by_zip
+from backend.ml.need_score import get_delivery_necessity_for_zip, get_score
 from backend.models.schemas import (
+    DeliveryOption,
     DropLocation,
     FoodOption,
     OptionsResponse,
@@ -18,8 +20,8 @@ from backend.models.schemas import (
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-# KC ZIP codes are 641xx
-_VALID_ZIP_PREFIX = "641"
+# KC area ZIPs: 641xx (KCMO) and 661xx (KCK — Kansas City, Kansas)
+_VALID_ZIP_PREFIXES = ("641", "661")
 _DEFAULT_RADIUS_MI = 10.0
 
 # Lat/lng center points per ZIP for distance calculation
@@ -55,6 +57,15 @@ _ZIP_CENTERS: dict[str, tuple[float, float]] = {
     "64150": (39.1652, -94.6617),
     "64151": (39.1652, -94.6137),
     "64152": (39.1652, -94.6617),
+    # Kansas City, Kansas (KCK) — highest-need ZIPs per data brief
+    "66101": (39.1142, -94.6277),
+    "66102": (39.1142, -94.6617),
+    "66103": (39.0882, -94.6277),
+    "66104": (39.1402, -94.6617),
+    "66105": (39.0882, -94.6617),
+    "66106": (39.0632, -94.6617),
+    "66109": (39.1402, -94.7137),
+    "66112": (39.1142, -94.7137),
 }
 
 
@@ -81,10 +92,10 @@ def _has_transit(option: dict) -> bool:
 def get_options(zip: str = Query(..., description="5-digit KC ZIP code")) -> OptionsResponse:
     zip = zip.strip()
 
-    if not zip.isdigit() or len(zip) != 5 or not zip.startswith(_VALID_ZIP_PREFIX):
+    if not zip.isdigit() or len(zip) != 5 or not zip.startswith(_VALID_ZIP_PREFIXES):
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid ZIP code '{zip}'. Please enter a Kansas City ZIP (641xx).",
+            detail="Invalid ZIP code. Please enter a Kansas City area ZIP (641xx or 661xx).",
         )
 
     user_center = _ZIP_CENTERS.get(zip)
@@ -167,9 +178,16 @@ def get_options(zip: str = Query(..., description="5-digit KC ZIP code")) -> Opt
     else:
         produce_alert = ProduceAlert(active=False)
 
+    # Delivery options
+    delivery_necessity_flag = get_delivery_necessity_for_zip(zip)
+    raw_delivery = filter_providers_by_zip(zip)
+    delivery_options = [DeliveryOption(**p) for p in raw_delivery]
+
     return OptionsResponse(
         zip=zip,
         need_score=need_score,
         options=options,
         produce_alert=produce_alert,
+        delivery_necessity_flag=delivery_necessity_flag,
+        delivery_options=delivery_options,
     )

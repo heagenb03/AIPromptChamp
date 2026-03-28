@@ -272,7 +272,7 @@ const app = (() => {
    * @returns {boolean}
    */
   function _isValidZip(zip) {
-    return /^641\d{2}$/.test(zip);
+    return /^(641|661)\d{2}$/.test(zip);
   }
 
   /** Show a translated error below the ZIP input. */
