@@ -40,56 +40,56 @@ def _get(path: str, params: dict[str, Any] | None = None) -> Any:
 # ---------------------------------------------------------------------------
 
 def fetch_pantries() -> list[dict]:
-    data = _get("/pantries")
+    data = _get("/challenge/pantries")
     if data is not None:
         return data
     return _mock_pantries()
 
 
 def fetch_food_atlas() -> list[dict]:
-    data = _get("/food-atlas")
+    data = _get("/challenge/food-atlas")
     if data is not None:
         return data
     return _mock_food_atlas()
 
 
 def fetch_demographics() -> list[dict]:
-    data = _get("/demographics")
+    data = _get("/challenge/demographics")
     if data is not None:
         return data
     return _mock_demographics()
 
 
 def fetch_311_calls() -> list[dict]:
-    data = _get("/311-calls")
+    data = _get("/challenge/311-calls")
     if data is not None:
         return data
     return _mock_311_calls()
 
 
 def fetch_store_closures() -> list[dict]:
-    data = _get("/store-closures")
+    data = _get("/challenge/store-closures")
     if data is not None:
         return data
     return _mock_store_closures()
 
 
 def fetch_transit() -> list[dict]:
-    data = _get("/transit")
+    data = _get("/challenge/transit")
     if data is not None:
         return data
     return _mock_transit()
 
 
 def fetch_supply_alerts() -> dict:
-    data = _get("/supply-alerts")
+    data = _get("/challenge/supply-alerts")
     if data is not None:
         return data
     return _mock_supply_alerts()
 
 
 def fetch_harvest() -> dict:
-    data = _get("/harvest")
+    data = _get("/challenge/harvest")
     if data is not None:
         return data
     return _mock_harvest()
