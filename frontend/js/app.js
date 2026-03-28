@@ -30,6 +30,8 @@ const app = (() => {
     elNeedAlert,
     elTableContainer,
     elAlertContainer,
+    elDeliveryContainer,
+    elDeliveryTableContainer,
     elVoteForm,
     elVoteMsg,
     elLangToggle,
@@ -126,6 +128,14 @@ const app = (() => {
           { name: "Community Assistance Council", address: "10901 Blue Ridge Blvd", routing_score: 61.8, reason: "High need ZIP, transit-accessible" },
         ],
       },
+      delivery_necessity_flag: true,
+      delivery_options: [
+        { name: "Walmart Grocery",             snap_accepted: true,  ebt_accepted: true,  delivery_fee: 7.95, order_minimum: 35.00, estimated_weekly_total: 42.95, same_day: true,  cost_tier: "low",    serves_zip: true, notes: "SNAP/EBT accepted" },
+        { name: "Amazon Fresh",                snap_accepted: true,  ebt_accepted: true,  delivery_fee: 9.95, order_minimum: 35.00, estimated_weekly_total: 44.95, same_day: true,  cost_tier: "market", serves_zip: true, notes: "Free with Prime; EBT accepted" },
+        { name: "Instacart (Aldi/Price Chopper)", snap_accepted: true, ebt_accepted: false, delivery_fee: 5.99, order_minimum: 10.00, estimated_weekly_total: 15.99, same_day: true, cost_tier: "low",   serves_zip: true, notes: "Fee varies $3.99–$9.99" },
+        { name: "Dillons/Kroger",              snap_accepted: true,  ebt_accepted: true,  delivery_fee: 9.95, order_minimum: 35.00, estimated_weekly_total: 44.95, same_day: true,  cost_tier: "market", serves_zip: true, notes: "SNAP/EBT accepted" },
+        { name: "Hy-Vee Aisles Online",        snap_accepted: false, ebt_accepted: false, delivery_fee: 9.95, order_minimum: 24.95, estimated_weekly_total: 34.90, same_day: true,  cost_tier: "market", serves_zip: true, notes: "No SNAP/EBT currently" },
+      ],
     },
     "64110": {
       zip: "64110",
@@ -172,6 +182,8 @@ const app = (() => {
         },
       ],
       produce_alert: { active: false, pounds: 0, expires_in_hrs: 0, item: null, top_drop_locations: [] },
+      delivery_necessity_flag: false,
+      delivery_options: [],
     },
     "64108": {
       zip: "64108",
@@ -213,6 +225,8 @@ const app = (() => {
           { name: "Guadalupe Center", address: "1015 W Avenida Cesar E Chavez", routing_score: 78.3, reason: "Bilingual (ES), cold storage, high transit frequency" },
         ],
       },
+      delivery_necessity_flag: false,
+      delivery_options: [],
     },
   };
 
@@ -336,6 +350,13 @@ const app = (() => {
     table.render(data.options, elTableContainer);
     alerts.render(data.produce_alert, elAlertContainer);
 
+    if (data.delivery_necessity_flag && data.delivery_options && data.delivery_options.length > 0) {
+      delivery.render(data.delivery_options, elDeliveryTableContainer);
+      elDeliveryContainer.classList.remove("hidden");
+    } else {
+      elDeliveryContainer.classList.add("hidden");
+    }
+
     elResultsSection.classList.remove("hidden");
     elResultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -394,6 +415,9 @@ const app = (() => {
       _renderNeedScore(currentData.need_score);
       table.render(currentData.options, elTableContainer);
       alerts.render(currentData.produce_alert, elAlertContainer);
+      if (currentData.delivery_necessity_flag && currentData.delivery_options && currentData.delivery_options.length > 0) {
+        delivery.render(currentData.delivery_options, elDeliveryTableContainer);
+      }
     }
   }
 
@@ -403,19 +427,21 @@ const app = (() => {
 
   /** Boot the app — grab DOM refs, wire listeners, init sub-modules. */
   function init() {
-    elZipInput       = document.getElementById("zip-input");
-    elZipBtn         = document.getElementById("zip-btn");
-    elZipError       = document.getElementById("zip-error");
-    elNeedBadge      = document.getElementById("need-badge");
-    elNeedScoreNum   = document.getElementById("need-score-num");
-    elNeedAlert      = document.getElementById("need-alert");
-    elTableContainer = document.getElementById("table-container");
-    elAlertContainer = document.getElementById("alert-container");
-    elVoteForm       = document.getElementById("vote-form");
-    elVoteMsg        = document.getElementById("vote-msg");
-    elLangToggle     = document.getElementById("lang-toggle");
-    elResultsSection = document.getElementById("results-section");
-    elSpinner        = document.getElementById("spinner");
+    elZipInput              = document.getElementById("zip-input");
+    elZipBtn                = document.getElementById("zip-btn");
+    elZipError              = document.getElementById("zip-error");
+    elNeedBadge             = document.getElementById("need-badge");
+    elNeedScoreNum          = document.getElementById("need-score-num");
+    elNeedAlert             = document.getElementById("need-alert");
+    elTableContainer        = document.getElementById("table-container");
+    elAlertContainer        = document.getElementById("alert-container");
+    elDeliveryContainer     = document.getElementById("delivery-container");
+    elDeliveryTableContainer = document.getElementById("delivery-table-container");
+    elVoteForm              = document.getElementById("vote-form");
+    elVoteMsg               = document.getElementById("vote-msg");
+    elLangToggle            = document.getElementById("lang-toggle");
+    elResultsSection        = document.getElementById("results-section");
+    elSpinner               = document.getElementById("spinner");
 
     elZipBtn.addEventListener("click", _handleSearch);
     elZipInput.addEventListener("keydown", (e) => {

@@ -97,6 +97,19 @@ const i18n = (() => {
     "vote.submit":          { en: "Submit Vote",                          es: "Enviar Voto" },
     "vote.thanks":          { en: "Thank you for your vote!",             es: "¡Gracias por tu voto!" },
 
+    /* ── Delivery Table ───────────────────────────── */
+    "delivery.heading":       { en: "Delivery Options",                                        es: "Opciones de Entrega" },
+    "delivery.why_hint":      { en: "Based on your ZIP, fewer than 2 transit-accessible pantries are nearby. Delivery may be your most accessible option.", es: "Según tu código postal, hay menos de 2 despensas accesibles por transporte público cerca. La entrega puede ser tu opción más accesible." },
+    "delivery.banner":        { en: "Delivery may be your best option",                        es: "La entrega puede ser tu mejor opción" },
+    "delivery.col_provider":  { en: "Provider",                                                es: "Proveedor" },
+    "delivery.col_snap_ebt":  { en: "SNAP / EBT",                                              es: "SNAP / EBT" },
+    "delivery.col_fee":       { en: "Delivery Fee",                                            es: "Costo de Entrega" },
+    "delivery.col_order_min": { en: "Order Min",                                               es: "Pedido Mínimo" },
+    "delivery.col_total":     { en: "Est. Total",                                              es: "Total Est." },
+    "delivery.col_same_day":  { en: "Same-Day",                                                es: "Mismo Día" },
+    "delivery.snap":          { en: "SNAP",                                                    es: "SNAP" },
+    "delivery.ebt":           { en: "EBT",                                                     es: "EBT" },
+
     /* ── Footer ────────────────────────────────────── */
     "footer.text":          { en: "OptimalEats — Connecting Kansas City to affordable food.", es: "OptimalEats — Conectando a Kansas City con comida accesible." },
     "footer.disclaimer":    { en: "Data sourced from public APIs. Availability may vary.",    es: "Datos obtenidos de APIs públicas. La disponibilidad puede variar." },

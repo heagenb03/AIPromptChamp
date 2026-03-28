@@ -80,7 +80,12 @@ GET /api/options?zip=64130
 - `data/delivery_fetcher.py` — static KC delivery providers (Walmart, Amazon Fresh, Instacart, Dillons, Hy-Vee)
 - `delivery_necessity_flag` = true when ZIP has >35% no-vehicle households AND <2 transit-accessible pantries nearby
 - Frontend ZIP validation accepts both `641xx` (KCMO) and `661xx` (KCK) — backend does too
-- Tests in `backend/tests/` — run with `pytest backend/tests/`
+- Tests in `backend/tests/` — run with `.venv/Scripts/python -m pytest backend/tests/ -v`
+
+### ZIP Coverage
+KC area spans two states: KCMO (641xx) and KCK (661xx). Both prefixes must be accepted.
+- 66101 and 66105 are the #1 and #3 highest-need ZIPs per data brief
+- The challenge API's `/demographics` endpoint omits KCK ZIPs entirely — `data/cache.py:load_all()` supplements hardcoded values from the data brief after loading real API data
 
 ### ML Design
 - No model training at runtime — precomputed weighted sum using scikit-learn/numpy
