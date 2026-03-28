@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -39,9 +40,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Build allowed origins — include Railway production URL when RAILWAY_PUBLIC_DOMAIN is set
+_allowed_origins = ["http://localhost:8000", "http://127.0.0.1:8000"]
+_railway_domain = os.environ.get("RAILWAY_PUBLIC_DOMAIN")
+if _railway_domain:
+    _allowed_origins.append(f"https://{_railway_domain}")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000", "http://127.0.0.1:8000"],
+    allow_origins=_allowed_origins,
     allow_credentials=False,
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type"],
