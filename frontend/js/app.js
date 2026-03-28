@@ -34,6 +34,7 @@ const app = (() => {
     elPathsContainer,
     elDeliveryContainer,
     elDeliveryTableContainer,
+    elVoteSection,
     elVoteForm,
     elVoteMsg,
     elLangToggle,
@@ -415,6 +416,7 @@ const app = (() => {
     table.render(data.options, elTableContainer);
     alerts.render(data.produce_alert, elAlertContainer);
     alerts.renderVoteBanner(data.community_vote, elVoteBannerContainer);
+    if (elVoteSection) elVoteSection.classList.toggle("hidden", !data.community_vote?.active);
 
     if (data.delivery_necessity_flag && (data.delivery_options?.length > 0 || data.batched_delivery)) {
       delivery.render(data.delivery_options, elDeliveryTableContainer, data.batched_delivery);
@@ -507,6 +509,7 @@ const app = (() => {
       table.render(currentData.options, elTableContainer);
       alerts.render(currentData.produce_alert, elAlertContainer);
       alerts.renderVoteBanner(currentData.community_vote, elVoteBannerContainer);
+      if (elVoteSection) elVoteSection.classList.toggle("hidden", !currentData.community_vote?.active);
       if (currentData.delivery_necessity_flag && (currentData.delivery_options?.length > 0 || currentData.batched_delivery)) {
         delivery.render(currentData.delivery_options, elDeliveryTableContainer, currentData.batched_delivery);
       }
@@ -531,6 +534,7 @@ const app = (() => {
     elPathsContainer        = document.getElementById("paths-container");
     elDeliveryContainer     = document.getElementById("delivery-container");
     elDeliveryTableContainer = document.getElementById("delivery-table-container");
+    elVoteSection           = document.getElementById("vote-section");
     elVoteForm              = document.getElementById("vote-form");
     elVoteMsg               = document.getElementById("vote-msg");
     elLangToggle            = document.getElementById("lang-toggle");

@@ -4,38 +4,40 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OptimalEats — Smart City Logistics Command</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/brand.css" />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
 :root {
-  --green-deep: #0f2e1a;
-  --green-mid: #1d4a2e;
-  --green-bright: #2d6b42;
-  --green-light: #7ecfa0;
+  --navy-deep:  #0f1821;
+  --navy-mid:   #1a2332;
+  --navy-bright:#1e3a5f;
+  --blue-light: #73b3e7;
   --terracotta: #c84b2f;
-  --amber: #e8941a;
-  --cream: #f5f0e8;
-  --white: #fff;
+  --amber:      #e8941a;
+  --cream:      #f5f5f0;
+  --white:      #fff;
+
+  /* map old green vars to new navy palette */
+  --green-deep:   var(--navy-deep);
+  --green-mid:    var(--navy-mid);
+  --green-bright: var(--navy-bright);
+  --green-light:  var(--blue-light);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: var(--green-deep); font-family: 'DM Sans', sans-serif; min-height: 100vh; color: var(--cream); overflow-x: hidden; }
+body { background: var(--navy-deep); font-family: var(--oe-font-body, 'Public Sans', sans-serif); min-height: 100vh; color: var(--cream); overflow-x: hidden; }
 
-/* ---- NAVIGATION ---- */
-.topnav {
-  background: var(--green-deep); border-bottom: 1px solid rgba(255,255,255,0.08);
-  padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 64px;
-  position: sticky; top: 0; z-index: 1000;
+/* ---- NAVIGATION (brand nav handled by brand.css) ---- */
+/* Internal section tabs (Overview/Audience/Marketing/Metrics) */
+.section-tabs { display: flex; gap: 4px; }
+.section-tab {
+  padding: 7px 16px; font-family: var(--oe-font-body, 'Public Sans', sans-serif);
+  font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.5);
+  border-radius: 4px; cursor: pointer; transition: all 0.2s; border: none; background: transparent;
+  text-transform: uppercase; letter-spacing: 0.06em;
 }
-.nav-brand { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 2px; color: var(--white); }
-.nav-brand span { color: var(--green-light); }
-.nav-tabs { display: flex; gap: 8px; }
-.nav-tab {
-  padding: 8px 20px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.5);
-  border-radius: 40px; cursor: pointer; transition: all 0.2s; border: none; background: transparent;
-  text-transform: uppercase; letter-spacing: 1px;
-}
-.nav-tab:hover { color: var(--white); background: rgba(255,255,255,0.05); }
-.nav-tab.active { color: var(--green-deep); background: var(--green-light); }
+.section-tab:hover { color: var(--white); background: rgba(255,255,255,0.09); }
+.section-tab.active { color: var(--navy-mid); background: var(--blue-light); }
 
 /* ---- PAGE STRUCTURE ---- */
 .page { display: none; padding: 40px; max-width: 1300px; margin: 0 auto; }
@@ -44,7 +46,7 @@ body { background: var(--green-deep); font-family: 'DM Sans', sans-serif; min-he
 
 /* ---- HERO & STATS ---- */
 .hero-band {
-  background: linear-gradient(135deg, var(--green-mid) 0%, var(--green-deep) 100%);
+  background: linear-gradient(135deg, var(--navy-bright) 0%, var(--navy-deep) 100%);
   border-radius: 16px; padding: 48px; margin-bottom: 32px;
   display: flex; justify-content: space-between; align-items: center;
   border: 1px solid rgba(255,255,255,0.07); position: relative;
@@ -80,12 +82,12 @@ body { background: var(--green-deep); font-family: 'DM Sans', sans-serif; min-he
 .m-title { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--white); margin-bottom: 16px; letter-spacing: 1px; }
 .m-body { font-size: 15px; color: rgba(255,255,255,0.7); line-height: 1.7; margin-bottom: 24px; }
 .m-pills { display: flex; gap: 10px; flex-wrap: wrap; }
-.m-pill { background: rgba(126,207,160,0.12); color: var(--green-light); padding: 6px 16px; border-radius: 40px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+.m-pill { background: rgba(115,179,231,0.12); color: var(--blue-light); padding: 6px 16px; border-radius: 40px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
 
 /* ---- KPI BOXES ---- */
 .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
 .kpi-box {
-  background: rgba(126,207,160,0.06); border: 1px solid rgba(126,207,160,0.2);
+  background: rgba(115,179,231,0.06); border: 1px solid rgba(115,179,231,0.2);
   border-radius: 12px; padding: 24px; margin-bottom: 16px;
 }
 .kpi-box.alt { border-color: var(--terracotta); background: rgba(200,75,47,0.06); }
@@ -98,15 +100,29 @@ body { background: var(--green-deep); font-family: 'DM Sans', sans-serif; min-he
 </head>
 <body>
 
-<nav class="topnav">
-  <div class="nav-brand">Optimal<span>Eats</span></div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('overview')">Overview</button>
-    <button class="nav-tab" onclick="showPage('audience')">Audience</button>
-    <button class="nav-tab" onclick="showPage('marketing')">Marketing</button>
-    <button class="nav-tab" onclick="showPage('metrics')">Success Metrics</button>
+<nav class="oe-nav">
+  <!-- Brand -->
+  <a href="index.html" class="oe-nav-brand">
+    <div class="oe-nav-logo">
+      <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>
+      </svg>
+    </div>
+    <span class="oe-nav-wordmark">Optimal<span>Eats</span></span>
+  </a>
+  <!-- Internal section tabs -->
+  <div class="section-tabs">
+    <button class="section-tab active" onclick="showPage('overview', this)">Overview</button>
+    <button class="section-tab" onclick="showPage('audience', this)">Audience</button>
+    <button class="section-tab" onclick="showPage('marketing', this)">Marketing</button>
+    <button class="section-tab" onclick="showPage('metrics', this)">Metrics</button>
   </div>
-  <div class="nav-meta" style="font-size: 10px; opacity: 0.4;">KC LOGISTICS COMMAND · 2026</div>
+  <!-- Track links -->
+  <div class="oe-nav-tracks">
+    <a href="index.html" class="oe-nav-track">App</a>
+    <a href="oracle.html" class="oe-nav-track">Oracle</a>
+    <a href="Marketing.html" class="oe-nav-track active">Marketing</a>
+  </div>
 </nav>
 
 <div id="page-overview" class="page active">
@@ -229,11 +245,11 @@ body { background: var(--green-deep); font-family: 'DM Sans', sans-serif; min-he
 </div>
 
 <script>
-function showPage(name) {
+function showPage(name, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
-  event.currentTarget.classList.add('active');
+  if (btn) btn.classList.add('active');
 }
 </script>
 </body>

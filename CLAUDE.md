@@ -51,13 +51,20 @@ No build step — plain HTML/CSS/JS with Tailwind via CDN. Open via the FastAPI 
 - `ml/produce_routing.py` — Pantry routing for curveball: `0.4*need_score + 0.3*cold_storage + 0.2*transit_freq + 0.1*language_es`
 - `models/schemas.py` — Pydantic response models
 
+### Frontend Pages — Three Competition Tracks
+- `index.html` — Track: The Architect (main food finder app, Tailwind CSS)
+- `oracle.html` — Track: The Oracle (system pitch dashboard, Chart.js, custom CSS, no pre-existing nav bar)
+- `Marketing.html` — Track: Marketing (pitch deck with internal section tabs: Overview/Audience/Marketing/Metrics, dark green theme, Bebas Neue font)
+- All three pages have a shared track nav bar linking between them — preserve it when editing navs
+- Each page has an intentionally distinct visual design — do not unify themes across pages
+
 ### Frontend (`frontend/`)
 - `index.html` — Main page shell (ZIP input, table, cards, alert banner, language toggle)
 - `js/app.js` — Entry point, ZIP input handler
 - `js/table.js` — Cost comparison table renderer (cost tiers: free=green, low=yellow, market=red)
 - `js/paths.js` — 3-path choice architecture cards (Free/Optimal/Instant routes)
 - `js/cards.js` — Expandable pantry detail card component
-- `js/alerts.js` — Supply/produce alert banner
+- `js/alerts.js` — Alert banners: `render()` for produce, `renderVoteBanner()` for community vote; new banners are added as public methods here
 - `js/delivery.js` — Delivery options table; only rendered when `delivery_necessity_flag` is true
 - `js/i18n.js` — EN/ES translation map + toggle
 - `oracle.html` — Oracle/advisor feature page (see `oracle-brief.md` for spec)
@@ -67,6 +74,8 @@ No build step — plain HTML/CSS/JS with Tailwind via CDN. Open via the FastAPI 
 - Script load order in index.html: i18n.js → components → app.js (app.js must be last)
 - All user-visible strings must use `i18n.t("key")` — no hardcoded English; add keys to both `en` and `es` in i18n.js
 - New render calls must be added to both `_renderResults()` and `_handleLangChange()` in app.js
+- New render calls also require: (1) `<div id="xxx-container">` in index.html, (2) `let elXxx` DOM ref declared at top of module, (3) `elXxx = document.getElementById(...)` in `init()`
+- When adding new API response fields, update ALL 3 MOCK entries in app.js (64130 with real data, 64110/64108 with `null`/empty) — standalone mode breaks silently otherwise
 - Table has 7 columns (Option, Type, Cost, Distance, Transit, Language, Cuisine) — cards.js colSpan must match
 - Built-in mock data for ZIPs 64130 (full data), 64110 (no delivery), 64108 (limited) — test standalone by opening index.html directly
 
@@ -84,7 +93,8 @@ GET /api/options?zip=64130
   "delivery_necessity_flag": true,
   "delivery_options": [{ "name", "snap_accepted", "ebt_accepted", "delivery_fee",
                          "order_minimum", "estimated_weekly_total", "same_day",
-                         "cost_tier", "serves_zip", "notes" }]
+                         "cost_tier", "serves_zip", "notes" }],
+  "community_vote": { "active", "deadline", "zones": [{ "zip", "need_score", "spanish_dominant", "label" }], "total_zones" }
 }
 ```
 **Rule:** Add fields only — never rename or remove fields once frozen.
@@ -111,3 +121,7 @@ KC area spans two states: KCMO (641xx) and KCK (661xx). Both prefixes must be ac
 # Ctrl+C then:
 .venv/Scripts/uvicorn backend.main:app --reload
 ```
+
+### Curveball Features (added 1PM, 2026-03-28)
+- **Community vote** — `_build_community_vote()` in `api/options.py` reads `AppCache.harvest_zips`, picks top 2 by need_score, flags `_SPANISH_DOMINANT_ZIPS = {"66101", "66105", "64108"}`, deadline `2026-04-11`; returns `None` if harvest_zips is empty
+- **Produce routing** — already built pre-curveball; restart server to pick up supply-alerts API changes; recognized alert types: `produce_donation`, `fresh_produce`, `fresh_donation`; unknown types emit a WARNING log

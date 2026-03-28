@@ -47,11 +47,16 @@ const alerts = (() => {
       locTextCss      = "text-yellow-800";
     }
 
-    const bodyText = i18n.t("alert.produce_body", {
-      pounds: (alert.pounds || 0).toLocaleString(),
-      item:   alert.item || "fresh produce",
-      hours:  alert.expires_in_hrs || "?",
-    });
+    const hasPounds = alert.pounds > 0;
+    const hasHours  = alert.expires_in_hrs > 0;
+    const item      = alert.item || "fresh produce";
+    const bodyText  = (hasPounds && hasHours)
+      ? i18n.t("alert.produce_body", {
+          pounds: alert.pounds.toLocaleString(),
+          item,
+          hours: alert.expires_in_hrs,
+        })
+      : i18n.t("alert.produce_body_simple", { item });
 
     /* ── Drop-location cards ──────────────────────── */
     let locsHTML = "";

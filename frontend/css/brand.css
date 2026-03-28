@@ -1,0 +1,169 @@
+/**
+ * brand.css — OptimalEats Shared Design Tokens & Navigation
+ *
+ * Civic-tech aesthetic inspired by USWDS (US Web Design System).
+ * Import this before page-specific styles on all three track pages.
+ *
+ * Usage: <link rel="stylesheet" href="css/brand.css" />
+ */
+
+/* ── Google Fonts: Public Sans (government-designed) + IBM Plex Mono ── */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap');
+
+/* ── Design Tokens ──────────────────────────────────────────────────── */
+:root {
+  /* Core palette — civic navy */
+  --oe-navy:         #1a2332;
+  --oe-navy-deep:    #0f1821;
+  --oe-navy-mid:     #1e3a5f;
+  --oe-blue:         #005ea2;   /* USWDS primary blue */
+  --oe-blue-mid:     #2b5ea7;
+  --oe-blue-light:   #d9e8f6;
+  --oe-blue-accent:  #73b3e7;   /* nav active highlight */
+  --oe-green:        #2e8540;
+  --oe-green-light:  #e6f4eb;
+  --oe-amber:        #c05600;
+  --oe-red:          #b50909;
+
+  /* Surface */
+  --oe-bg:           #f5f5f0;   /* warm off-white — classic gov form paper */
+  --oe-surface:      #ffffff;
+  --oe-surface-alt:  #f0f4f8;
+  --oe-border:       #c9d3de;
+  --oe-border-dark:  #8a99ad;
+
+  /* Text */
+  --oe-text:         #1b1b1b;
+  --oe-text-muted:   #565c65;
+  --oe-text-subtle:  #717786;
+
+  /* Typography */
+  --oe-font-body:    'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --oe-font-mono:    'IBM Plex Mono', 'Courier New', Courier, monospace;
+  --oe-font-display: 'Bebas Neue', 'Impact', sans-serif;
+
+  /* Radius / shadow */
+  --oe-radius-sm:    4px;
+  --oe-radius:       6px;
+  --oe-radius-lg:    10px;
+  --oe-shadow-sm:    0 1px 2px rgba(0,0,0,0.08);
+  --oe-shadow:       0 1px 4px rgba(0,0,0,0.12);
+}
+
+/* ── Shared Navigation ──────────────────────────────────────────────── */
+
+.oe-nav {
+  background: var(--oe-navy);
+  border-bottom: 3px solid var(--oe-blue);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Brand mark + wordmark */
+.oe-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.oe-nav-logo {
+  width: 30px;
+  height: 30px;
+  background: var(--oe-blue);
+  border-radius: var(--oe-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.oe-nav-logo svg {
+  width: 16px;
+  height: 16px;
+  color: #fff;
+}
+
+.oe-nav-wordmark {
+  font-family: var(--oe-font-body);
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.oe-nav-wordmark span {
+  color: var(--oe-blue-accent);
+}
+
+/* Track links */
+.oe-nav-tracks {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.oe-nav-track {
+  padding: 7px 14px;
+  font-family: var(--oe-font-body);
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  border-radius: var(--oe-radius-sm);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: color 0.15s ease, background 0.15s ease;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.oe-nav-track:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.oe-nav-track.active {
+  color: var(--oe-navy);
+  background: var(--oe-blue-accent);
+}
+
+/* Right slot (language toggle, etc.) */
+.oe-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ── Shared Body Defaults ───────────────────────────────────────────── */
+
+.oe-body {
+  font-family: var(--oe-font-body);
+  background: var(--oe-bg);
+  color: var(--oe-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility: monospace */
+.oe-mono {
+  font-family: var(--oe-font-mono);
+}
+
+/* ── Responsive nav ─────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .oe-nav { padding: 0 16px; }
+  .oe-nav-wordmark { font-size: 14px; }
+  .oe-nav-track { padding: 6px 10px; font-size: 11px; }
+}

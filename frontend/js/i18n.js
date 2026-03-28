@@ -90,7 +90,8 @@ const i18n = (() => {
 
     /* ── Alert Banner ──────────────────────────────── */
     "alert.produce_title":  { en: "Fresh Produce Available!",             es: "¡Productos Frescos Disponibles!" },
-    "alert.produce_body":   { en: "{pounds} lbs of {item} available — pick up before {hours} hours", es: "{pounds} lbs de {item} disponibles — recógelos antes de {hours} horas" },
+    "alert.produce_body":        { en: "{pounds} lbs of {item} available — pick up before {hours} hours", es: "{pounds} lbs de {item} disponibles — recógelos antes de {hours} horas" },
+    "alert.produce_body_simple": { en: "{item} available — claim at drop locations",                       es: "{item} disponibles — reclama en los puntos de entrega" },
     "alert.top_locations":  { en: "Recommended Pickup Locations",         es: "Ubicaciones de Recogida Recomendadas" },
     "alert.dismiss":        { en: "Dismiss",                              es: "Cerrar" },
     "alert.score":          { en: "Score",                                es: "Puntaje" },

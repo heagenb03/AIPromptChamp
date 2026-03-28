@@ -189,20 +189,46 @@ def _normalize_supply_alerts(raw: dict) -> dict:
     """
     # Real API: {status, lastUpdated, alerts: [...]}
     if "alerts" in raw:
-        _KNOWN_PRODUCE_TYPES = {"produce_donation", "fresh_produce", "fresh_donation"}
+        import re as _re
+        _KNOWN_PRODUCE_TYPES = {
+            "produce_donation", "fresh_produce", "fresh_donation", "perishable_donation",
+        }
         for alert in raw.get("alerts", []):
-            if alert.get("type") in _KNOWN_PRODUCE_TYPES:
-                return {
-                    "active": True,
-                    "item": alert.get("item", "fresh produce"),
-                    "pounds": alert.get("pounds"),
-                    "expires_in_hrs": alert.get("expiresInHrs") or alert.get("expires_in_hrs"),
-                }
-            else:
+            if alert.get("type") not in _KNOWN_PRODUCE_TYPES:
                 logger.warning(
                     "Unrecognized supply-alert type: %s — skipping",
                     alert.get("type"),
                 )
+                continue
+
+            # Try direct fields first, then parse from title/description text
+            pounds = (alert.get("pounds") or alert.get("quantity") or
+                      alert.get("lbs") or alert.get("quantityLbs") or alert.get("totalLbs"))
+            if not pounds:
+                for text in (alert.get("title", ""), alert.get("description", "")):
+                    m = _re.search(r"([\d,]+)\s*(?:lbs?|pounds?)", text, _re.IGNORECASE)
+                    if m:
+                        pounds = int(m.group(1).replace(",", ""))
+                        break
+
+            expires_in_hrs = (alert.get("expiresInHrs") or alert.get("expires_in_hrs") or
+                              alert.get("expiresHrs") or alert.get("hoursRemaining") or alert.get("spoilsInHrs"))
+            if not expires_in_hrs:
+                for text in (alert.get("title", ""), alert.get("description", "")):
+                    m = _re.search(r"(\d+)\s*(?:-\s*)?hr|(\d+)\s*hours?", text, _re.IGNORECASE)
+                    if m:
+                        expires_in_hrs = int(m.group(1) or m.group(2))
+                        break
+
+            item = alert.get("item") or "fresh produce"
+
+            return {
+                "active": True,
+                "item": item,
+                "pounds": pounds,
+                "expires_in_hrs": expires_in_hrs,
+            }
+
         # No produce alert active — check status
         return {"active": raw.get("status") not in ("normal", None, "")}
 
