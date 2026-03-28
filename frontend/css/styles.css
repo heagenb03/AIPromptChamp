@@ -1,0 +1,58 @@
+/**
+ * styles.css — Custom Styles for OptimalEats
+ *
+ * Supplements Tailwind utility classes with animations, focus
+ * rings, table hover effects, and scrollbar styling that are
+ * cleaner to express in CSS than via inline utilities.
+ */
+
+/* ── Base ──────────────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Table Row Interactions ────────────────────────── */
+#table-container tr { transition: background-color 0.15s ease; }
+#table-container tbody tr.cursor-pointer:hover {
+  box-shadow: inset 3px 0 0 0 #3b82f6;
+}
+
+/* ── Card Slide-Down ───────────────────────────────── */
+.card-row td > div { animation: slideDown 0.3s ease-out; }
+
+@keyframes slideDown {
+  0%   { opacity: 0; transform: translateY(-8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  0%   { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
+
+.animate-fadeOut { animation: fadeOut 0.3s ease-out forwards; }
+
+/* ── Accessibility ─────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* ── Need Score Badge Pulse (high-need) ────────────── */
+#need-badge.bg-red-50 { animation: subtlePulse 3s ease-in-out infinite; }
+
+@keyframes subtlePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.15); }
+  50%      { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+}
+
+/* ── Produce Alert Banner ─────────────────────────── */
+#alert-container > div { animation: slideDown 0.4s ease-out; }
+
+/* ── Scrollbar (webkit) ───────────────────────────── */
+::-webkit-scrollbar       { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
