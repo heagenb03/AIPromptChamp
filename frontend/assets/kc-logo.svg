@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- FoodFlow KC logo  stylised lightning bolt over a plate -->
+  <circle cx="32" cy="32" r="30" fill="url(#grad)" />
+  <path d="M26 12 L20 32 L28 32 L22 52 L44 28 L34 28 L40 12 Z"
+        fill="white" stroke="white" stroke-width="1" stroke-linejoin="round" />
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="64" y2="64">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+  </defs>
+</svg>
