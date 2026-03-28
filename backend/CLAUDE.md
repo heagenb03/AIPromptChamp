@@ -19,6 +19,7 @@ python -m venv .venv && pip install -r backend/requirements.txt
 - `.env` lives in project root (not `backend/`) — `load_dotenv()` finds it automatically
 - `CHALLENGE_API_BASE=https://aipromptchamp.com/api` — real challenge API base URL
 - Without it set, all fetchers fall back to mock data silently
+- `ANTHROPIC_API_KEY` — required for `POST /api/parse-query` (NLP ZIP extraction via Claude Haiku); endpoint returns 500 without it
 
 ## Real API Notes
 
@@ -47,6 +48,7 @@ All data loaded once at startup via `load_all()`. To reload (e.g. after curvebal
 
 - `need_score.py` — min-max normalizes 5 features, weighted sum → 0–100 per ZIP
 - `produce_routing.py` — `0.4*need_score + 0.3*cold_storage + 0.2*transit_freq + 0.1*lang_es`
+- `data/cuisine_tags.py` — static pantry→cuisine-tag map; `tag_option(option)` used in `options.py` to populate the `cuisine` field
 - Both run at startup inside `load_all()`, results cached in `AppCache.need_scores`
 
 ## Testing

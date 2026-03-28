@@ -7,14 +7,18 @@ import logging
 from fastapi import APIRouter, HTTPException, Query
 
 from backend.data.cache import AppCache
+from backend.data.cuisine_tags import VALID_CUISINES
 from backend.data.delivery_fetcher import filter_providers_by_zip
-from backend.ml.need_score import get_delivery_necessity_for_zip, get_score
+from backend.ml.need_score import get_delivery_necessity_for_zip, get_score, get_score_breakdown
 from backend.models.schemas import (
+    BatchedDelivery,
+    CommunityVote,
     DeliveryOption,
     DropLocation,
     FoodOption,
     OptionsResponse,
     ProduceAlert,
+    VoteZone,
 )
 
 router = APIRouter()
@@ -79,6 +83,66 @@ def _haversine_miles(lat1: float, lng1: float, lat2: float, lng2: float) -> floa
     return r * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
+# ZIPs with >=80% Spanish-speaking population (per curveball brief)
+_SPANISH_DOMINANT_ZIPS: set[str] = {"66101", "66105", "64108"}
+
+# Human-readable labels for KC ZIPs
+_ZIP_LABELS: dict[str, str] = {
+    "66101": "Argentine / KCK",
+    "66105": "South KCK",
+    "66102": "Central KCK",
+    "66103": "Rosedale / KCK",
+    "66104": "North KCK",
+    "66106": "Turner / KCK",
+    "64108": "Westside / KCMO",
+    "64130": "Ivanhoe / KCMO",
+    "64128": "Prospect / KCMO",
+    "64127": "Independence Ave / KCMO",
+    "64109": "Midtown / KCMO",
+    "64110": "Brookside / KCMO",
+    "64124": "Northeast / KCMO",
+    "64126": "Blue Hills / KCMO",
+    "64129": "Ruskin Heights / KCMO",
+}
+
+_VOTE_DEADLINE = "2026-04-11"
+
+
+def _build_community_vote() -> CommunityVote | None:
+    """Build the community vote payload from harvest priority ZIPs.
+
+    Returns None if there are no harvest ZIPs to vote on.
+    """
+    harvest_zips = AppCache.harvest_zips
+    if not harvest_zips:
+        return None
+
+    scored: list[tuple[int, str]] = []
+    for z in harvest_zips:
+        score = AppCache.need_scores.get(z, 0)
+        scored.append((score, z))
+
+    scored.sort(key=lambda x: x[0], reverse=True)
+    top = scored[:2]
+
+    zones = [
+        VoteZone(
+            zip=z,
+            need_score=s,
+            spanish_dominant=z in _SPANISH_DOMINANT_ZIPS,
+            label=_ZIP_LABELS.get(z, f"ZIP {z}"),
+        )
+        for s, z in top
+    ]
+
+    return CommunityVote(
+        active=True,
+        deadline=_VOTE_DEADLINE,
+        zones=zones,
+        total_zones=2,
+    )
+
+
 def _cost_tier_order(tier: str) -> int:
     return {"free": 0, "low": 1, "market": 2}.get(tier, 99)
 
@@ -89,7 +153,10 @@ def _has_transit(option: dict) -> bool:
 
 
 @router.get("/options", response_model=OptionsResponse)
-def get_options(zip: str = Query(..., description="5-digit KC ZIP code")) -> OptionsResponse:
+def get_options(
+    zip: str = Query(..., description="5-digit KC ZIP code"),
+    cuisines: str | None = Query(None, description="Comma-separated cuisine filter"),
+) -> OptionsResponse:
     zip = zip.strip()
 
     if not zip.isdigit() or len(zip) != 5 or not zip.startswith(_VALID_ZIP_PREFIXES):
@@ -100,6 +167,13 @@ def get_options(zip: str = Query(..., description="5-digit KC ZIP code")) -> Opt
 
     user_center = _ZIP_CENTERS.get(zip)
     need_score = get_score(zip)
+
+    # Parse optional cuisine filter
+    requested_cuisines: set[str] | None = None
+    if cuisines and cuisines.strip():
+        parsed = {c.strip().lower() for c in cuisines.split(",")} & VALID_CUISINES
+        if parsed:
+            requested_cuisines = parsed
 
     options: list[FoodOption] = []
 
@@ -129,6 +203,13 @@ def get_options(zip: str = Query(..., description="5-digit KC ZIP code")) -> Opt
             cost_tier = item.get("cost_tier", "low")
             est_cost = item.get("est_cost_weekly", "varies")
 
+        cuisine_tags = item.get("cuisine_tags", [])
+
+        # Apply cuisine filter: skip non-matching options (but never filter delivery)
+        if requested_cuisines and item_type != "delivery":
+            if not (set(cuisine_tags) & requested_cuisines):
+                continue
+
         options.append(
             FoodOption(
                 name=item["name"],
@@ -142,13 +223,20 @@ def get_options(zip: str = Query(..., description="5-digit KC ZIP code")) -> Opt
                 cold_storage=item.get("cold_storage", False),
                 hours=item.get("hours", "Call for hours"),
                 address=item.get("address") or "Online/Delivery",
+                cuisine_tags=cuisine_tags,
             )
         )
 
-    # Sort: cost tier first, then distance
+    # Sort: cost tier first, then cuisine match ratio (desc), then distance (asc)
+    def _cuisine_match_ratio(opt: FoodOption) -> float:
+        if not requested_cuisines or not opt.cuisine_tags:
+            return 0.0
+        return len(set(opt.cuisine_tags) & requested_cuisines) / len(requested_cuisines)
+
     options.sort(
         key=lambda o: (
             _cost_tier_order(o.cost_tier),
+            -_cuisine_match_ratio(o),
             o.distance_mi if o.distance_mi is not None else 999,
         )
     )
@@ -183,11 +271,30 @@ def get_options(zip: str = Query(..., description="5-digit KC ZIP code")) -> Opt
     raw_delivery = filter_providers_by_zip(zip)
     delivery_options = [DeliveryOption(**p) for p in raw_delivery]
 
+    # Batched delivery — only for high-need ZIPs (delivery_necessity_flag)
+    # Cost formula mirrors the oracle density curve: max($1.50, $8.00 - need_score * $0.08)
+    batched_delivery: BatchedDelivery | None = None
+    if delivery_necessity_flag:
+        raw_cost = 8.00 - need_score * 0.08
+        cost = round(max(1.50, raw_cost), 2)
+        density = max(5, int(need_score / 4))
+        batched_delivery = BatchedDelivery(
+            cost_per_delivery=cost,
+            estimated_hrs=4,
+            snap_accepted=True,
+            ebt_accepted=True,
+            description="Shared neighborhood courier",
+            batch_density=density,
+        )
+
     return OptionsResponse(
         zip=zip,
         need_score=need_score,
+        need_score_breakdown=get_score_breakdown(zip),
         options=options,
         produce_alert=produce_alert,
         delivery_necessity_flag=delivery_necessity_flag,
         delivery_options=delivery_options,
+        batched_delivery=batched_delivery,
+        community_vote=_build_community_vote(),
     )

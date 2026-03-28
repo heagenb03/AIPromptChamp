@@ -55,6 +55,8 @@ class _Cache:
 
     # Computed at startup by ml/need_score.py
     need_scores: dict[str, int] = field(default_factory=dict)        # zip → 0–100
+    score_feature_mins: dict[str, float] = field(default_factory=dict)
+    score_feature_maxes: dict[str, float] = field(default_factory=dict)
 
 
 AppCache = _Cache()
@@ -187,14 +189,20 @@ def _normalize_supply_alerts(raw: dict) -> dict:
     """
     # Real API: {status, lastUpdated, alerts: [...]}
     if "alerts" in raw:
+        _KNOWN_PRODUCE_TYPES = {"produce_donation", "fresh_produce", "fresh_donation"}
         for alert in raw.get("alerts", []):
-            if alert.get("type") in ("produce_donation", "fresh_produce", "fresh_donation"):
+            if alert.get("type") in _KNOWN_PRODUCE_TYPES:
                 return {
                     "active": True,
                     "item": alert.get("item", "fresh produce"),
                     "pounds": alert.get("pounds"),
                     "expires_in_hrs": alert.get("expiresInHrs") or alert.get("expires_in_hrs"),
                 }
+            else:
+                logger.warning(
+                    "Unrecognized supply-alert type: %s — skipping",
+                    alert.get("type"),
+                )
         # No produce alert active — check status
         return {"active": raw.get("status") not in ("normal", None, "")}
 
@@ -210,8 +218,12 @@ def load_all() -> None:
     """Fetch all external data and populate AppCache. Called once at startup."""
     logger.info("Loading all challenge API data into cache...")
 
+    from backend.data.cuisine_tags import enrich_pantry_cuisine_tags
+
     raw_pantries = fetch_pantries()
     AppCache.pantries = [_normalize_pantry(p) for p in raw_pantries]
+    for pantry in AppCache.pantries:
+        pantry["cuisine_tags"] = enrich_pantry_cuisine_tags(pantry)
     logger.info("  pantries: %d records", len(AppCache.pantries))
 
     AppCache.food_atlas = _normalize_food_atlas(fetch_food_atlas())
@@ -256,8 +268,9 @@ def load_all() -> None:
     logger.info("  harvest: %d priority ZIPs: %s", len(AppCache.harvest_zips), AppCache.harvest_zips)
 
     # Compute need scores after all data is loaded
-    from backend.ml.need_score import compute_all_scores
+    from backend.ml.need_score import compute_all_scores, store_score_normalization_params
     AppCache.need_scores = compute_all_scores()
     logger.info("  need_scores computed for %d ZIPs", len(AppCache.need_scores))
+    store_score_normalization_params()
 
     logger.info("Cache load complete.")

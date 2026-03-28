@@ -43,8 +43,10 @@ No build step — plain HTML/CSS/JS with Tailwind via CDN. Open via the FastAPI 
 - `main.py` — FastAPI app entry point, mounts frontend as static files, enables CORS
 - `api/options.py` — `GET /api/options?zip=XXXXX` — core endpoint returning ranked options JSON
 - `api/alerts.py` — `GET /api/alerts` — supply alert + produce routing
+- `api/parse_query.py` — `POST /api/parse-query` — NLP ZIP extraction from natural language using Claude Haiku
 - `data/fetcher.py` — All external challenge API calls (`/pantries`, `/food-atlas`, `/demographics`, `/311-calls`, `/store-closures`, `/transit`, `/supply-alerts`, `/harvest`)
 - `data/cache.py` — In-memory dict cache, loads all API data at startup (no DB)
+- `data/cuisine_tags.py` — Static pantry→cuisine tag map + heuristic inference for unknowns
 - `ml/need_score.py` — Feature engineering + weighted scoring → Need Score (0–100) per ZIP
 - `ml/produce_routing.py` — Pantry routing for curveball: `0.4*need_score + 0.3*cold_storage + 0.2*transit_freq + 0.1*language_es`
 - `models/schemas.py` — Pydantic response models
@@ -53,9 +55,20 @@ No build step — plain HTML/CSS/JS with Tailwind via CDN. Open via the FastAPI 
 - `index.html` — Main page shell (ZIP input, table, cards, alert banner, language toggle)
 - `js/app.js` — Entry point, ZIP input handler
 - `js/table.js` — Cost comparison table renderer (cost tiers: free=green, low=yellow, market=red)
+- `js/paths.js` — 3-path choice architecture cards (Free/Optimal/Instant routes)
 - `js/cards.js` — Expandable pantry detail card component
 - `js/alerts.js` — Supply/produce alert banner
+- `js/delivery.js` — Delivery options table; only rendered when `delivery_necessity_flag` is true
 - `js/i18n.js` — EN/ES translation map + toggle
+- `oracle.html` — Oracle/advisor feature page (see `oracle-brief.md` for spec)
+
+**Frontend conventions:**
+- JS modules use IIFE pattern (`const name = (() => { ... })()`); new visual components get their own file
+- Script load order in index.html: i18n.js → components → app.js (app.js must be last)
+- All user-visible strings must use `i18n.t("key")` — no hardcoded English; add keys to both `en` and `es` in i18n.js
+- New render calls must be added to both `_renderResults()` and `_handleLangChange()` in app.js
+- Table has 7 columns (Option, Type, Cost, Distance, Transit, Language, Cuisine) — cards.js colSpan must match
+- Built-in mock data for ZIPs 64130 (full data), 64110 (no delivery), 64108 (limited) — test standalone by opening index.html directly
 
 ### API Contract (`shared/api-contract.md`)
 Frozen after 10:15AM. The canonical shape:

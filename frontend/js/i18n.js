@@ -39,6 +39,13 @@ const i18n = (() => {
     "zip.error_no_results": { en: "No results found for this ZIP code.",  es: "No se encontraron resultados para este código postal." },
     "zip.error_network":    { en: "Could not reach the server. Please try again.", es: "No se pudo conectar al servidor. Inténtalo de nuevo." },
 
+    /* ── NLP Input (Phase 3) ────────────────────────── */
+    "input_placeholder":    { en: "Enter ZIP or describe your area (e.g. 'food near 64130')", es: "Ingrese ZIP o describa su área (ej. 'comida cerca de 64130')" },
+    "interpreting_label":   { en: "Interpreting your request...",         es: "Interpretando su solicitud..." },
+    "nlp_error_label":      { en: "Could not find a KC location. Try a ZIP code.", es: "No se pudo encontrar una ubicación en KC. Intente con un código ZIP." },
+    "nlp_interpreted_as":   { en: "Showing results for {location}",       es: "Mostrando resultados para {location}" },
+    "spinner.searching":    { en: "Searching...",                         es: "Buscando..." },
+
     /* ── Need Score Badge ──────────────────────────── */
     "score.label":          { en: "Need Score",                           es: "Puntaje de Necesidad" },
     "score.high_alert":     { en: "High Need Area",                       es: "Zona de Alta Necesidad" },
@@ -88,6 +95,15 @@ const i18n = (() => {
     "alert.dismiss":        { en: "Dismiss",                              es: "Cerrar" },
     "alert.score":          { en: "Score",                                es: "Puntaje" },
 
+    /* ── Community Vote Banner (Curveball) ────────── */
+    "vote_banner.heading":      { en: "Community Priority Vote — Deadline: April 11", es: "Voto de Prioridad Comunitaria — Fecha Límite: 11 de Abril" },
+    "vote_banner.desc":         { en: "City council is selecting 2 priority zones for enhanced food access. Your vote matters!", es: "El concejo municipal está seleccionando 2 zonas prioritarias para mejor acceso a alimentos. ¡Tu voto importa!" },
+    "vote_banner.zone_label":   { en: "Priority Zone",                   es: "Zona Prioritaria" },
+    "vote_banner.need_score":   { en: "Need Score: {score}",             es: "Puntaje de Necesidad: {score}" },
+    "vote_banner.spanish_note": { en: "80%+ Spanish-speaking community", es: "Comunidad 80%+ hispanohablante" },
+    "vote_banner.days_left":    { en: "{days} days left to vote",        es: "{days} días para votar" },
+    "vote_banner.vote_now":     { en: "Vote Now",                        es: "Votar Ahora" },
+
     /* ── Community Vote Panel ──────────────────────── */
     "vote.heading":         { en: "Community Priority Vote",              es: "Voto de Prioridad Comunitaria" },
     "vote.desc":            { en: "Help us decide which neighborhoods should receive priority food access support.", es: "Ayúdanos a decidir qué vecindarios deberían recibir apoyo prioritario de acceso a alimentos." },
@@ -109,6 +125,46 @@ const i18n = (() => {
     "delivery.col_same_day":  { en: "Same-Day",                                                es: "Mismo Día" },
     "delivery.snap":          { en: "SNAP",                                                    es: "SNAP" },
     "delivery.ebt":           { en: "EBT",                                                     es: "EBT" },
+    "delivery.subsidy_discount": { en: "SNAP/EBT discount",                                    es: "Descuento SNAP/EBT" },
+
+    /* ── Choice Architecture (1A) ─────────────────── */
+    "free_route_label":     { en: "Free Route",                             es: "Ruta Gratuita" },
+    "optimal_route_label":  { en: "Optimal Route",                          es: "Ruta Óptima" },
+    "instant_route_label":  { en: "Instant Route",                          es: "Entrega Inmediata" },
+    "best_value_badge":     { en: "Best Value",                             es: "Mejor Precio" },
+    "no_delivery_zip":      { en: "Delivery not available in your area",    es: "Entrega no disponible en su área" },
+
+    /* ── Drop Zone Reframing (1B) ────────────────── */
+    "drop_zone_label":      { en: "Drop Zone",                              es: "Zona de Entrega" },
+    "cold_storage_badge":   { en: "Cold Storage",                           es: "Almacenamiento Frío" },
+    "transit_badge":        { en: "Transit Access",                         es: "Acceso en Tránsito" },
+    "no_id_badge":          { en: "No ID Required",                         es: "Sin Identificación" },
+
+    /* ── Active Drop Mission (1C) ────────────────── */
+    "active_mission_label": { en: "Active Drop Mission",                    es: "Misión de Entrega Activa" },
+    "routing_to_label":     { en: "Routing to",                             es: "Enviando a" },
+    "urgent_label":         { en: "URGENT",                                 es: "URGENTE" },
+    "today_label":          { en: "TODAY",                                  es: "HOY" },
+    "active_label":         { en: "ACTIVE",                                 es: "ACTIVO" },
+    "same_day_delivery":    { en: "Same-day delivery",                      es: "Entrega el mismo día" },
+    "batched.provider":     { en: "OptimalEats Batched",                    es: "OptimalEats Agrupado" },
+    "batched.per_delivery": { en: "/delivery",                              es: "/entrega" },
+    "batched.eta":          { en: "~{hrs} hrs · Shared courier",            es: "~{hrs} hrs · Mensajero compartido" },
+    "batched.note":         { en: "Algorithmically grouped with neighbors", es: "Agrupado algorítmicamente con vecinos" },
+    "batched.recommended":  { en: "Recommended",                            es: "Recomendado" },
+    "no_free_options":      { en: "No free options found for this ZIP.",     es: "No hay opciones gratuitas para este código postal." },
+    "more_free_options":    { en: "+{count} more free option below",        es: "+{count} opción gratuita más abajo" },
+    "more_free_options_pl": { en: "+{count} more free options below",       es: "+{count} opciones gratuitas más abajo" },
+    "see_details_below":    { en: "See details in table below ↓",           es: "Ver detalles en la tabla abajo ↓" },
+
+    /* ── Cuisine Preferences ──────────────────────── */
+    "cuisine.heading":          { en: "Cuisine Preferences (optional)",       es: "Preferencias de Cocina (opcional)" },
+    "cuisine.american":         { en: "American",                             es: "Americana" },
+    "cuisine.hispanic":         { en: "Hispanic",                             es: "Hispana" },
+    "cuisine.asian":            { en: "Asian",                                es: "Asiática" },
+    "cuisine.african_caribbean":{ en: "African/Caribbean",                    es: "Africana/Caribeña" },
+    "cuisine.soul_food":        { en: "Soul Food",                            es: "Soul Food" },
+    "table.col_cuisine":        { en: "Cuisine",                              es: "Cocina" },
 
     /* ── Footer ────────────────────────────────────── */
     "footer.text":          { en: "OptimalEats — Connecting Kansas City to affordable food.", es: "OptimalEats — Conectando a Kansas City con comida accesible." },

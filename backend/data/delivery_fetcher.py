@@ -62,6 +62,16 @@ def get_static_delivery_providers() -> list[dict]:
     for provider in _STATIC_PROVIDERS:
         p = dict(provider)
         p["estimated_weekly_total"] = round(p["order_minimum"] + p["delivery_fee"], 2)
+        if p["snap_accepted"] or p["ebt_accepted"]:
+            p["market_rate"] = round(p["delivery_fee"] + p["order_minimum"], 2)
+            p["subsidy_applied"] = round(p["delivery_fee"], 2)
+            p["final_cost"] = round(p["order_minimum"], 2)
+            p["subsidy_label"] = "SNAP/EBT discount applied"
+        else:
+            p["market_rate"] = round(p["delivery_fee"] + p["order_minimum"], 2)
+            p["subsidy_applied"] = 0.0
+            p["final_cost"] = round(p["delivery_fee"] + p["order_minimum"], 2)
+            p["subsidy_label"] = None
         result.append(p)
     return result
 

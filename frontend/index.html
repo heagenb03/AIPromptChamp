@@ -88,14 +88,29 @@
         Answer the question: how do I get food as cheaply as possible right now?
       </p>
 
+      <!-- Cuisine Preference Pills -->
+      <div class="mb-6 max-w-lg mx-auto">
+        <p class="text-blue-200 text-sm mb-2" data-i18n="cuisine.heading">Cuisine Preferences (optional)</p>
+        <div id="cuisine-pills" class="flex flex-wrap justify-center gap-2">
+          <button type="button" class="cuisine-pill px-3 py-1.5 rounded-full text-sm font-medium border-2 border-white/30 text-white/80 hover:bg-white/20 transition-all"
+                  data-cuisine="american" data-i18n="cuisine.american">American</button>
+          <button type="button" class="cuisine-pill px-3 py-1.5 rounded-full text-sm font-medium border-2 border-white/30 text-white/80 hover:bg-white/20 transition-all"
+                  data-cuisine="hispanic" data-i18n="cuisine.hispanic">Hispanic</button>
+          <button type="button" class="cuisine-pill px-3 py-1.5 rounded-full text-sm font-medium border-2 border-white/30 text-white/80 hover:bg-white/20 transition-all"
+                  data-cuisine="asian" data-i18n="cuisine.asian">Asian</button>
+          <button type="button" class="cuisine-pill px-3 py-1.5 rounded-full text-sm font-medium border-2 border-white/30 text-white/80 hover:bg-white/20 transition-all"
+                  data-cuisine="african_caribbean" data-i18n="cuisine.african_caribbean">African/Caribbean</button>
+          <button type="button" class="cuisine-pill px-3 py-1.5 rounded-full text-sm font-medium border-2 border-white/30 text-white/80 hover:bg-white/20 transition-all"
+                  data-cuisine="soul_food" data-i18n="cuisine.soul_food">Soul Food</button>
+        </div>
+      </div>
+
       <!-- ZIP Input Group -->
       <div class="flex items-center justify-center gap-3 max-w-md mx-auto">
         <input id="zip-input"
                type="text"
-               inputmode="numeric"
-               maxlength="5"
-               data-i18n="zip.placeholder"
-               placeholder="e.g. 64130"
+               data-i18n="input_placeholder"
+               placeholder="Enter ZIP or describe your area (e.g. 'food near 64130')"
                autocomplete="off"
                class="flex-1 px-5 py-3.5 rounded-xl text-gray-900 text-lg font-medium
                       placeholder-gray-400 border-2 border-transparent
@@ -133,7 +148,7 @@
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
       </svg>
-      <span class="text-lg font-medium">Searching...</span>
+      <span id="spinner-text" class="text-lg font-medium">Searching...</span>
     </div>
   </div>
 
@@ -145,6 +160,9 @@
 
       <!-- Produce Alert Banner -->
       <div id="alert-container"></div>
+
+      <!-- Community Vote Banner -->
+      <div id="vote-banner-container"></div>
 
       <!-- Need Score Badge + High-Need Alert -->
       <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -165,6 +183,9 @@
           </div>
         </div>
       </div>
+
+      <!-- 3-Path Choice Architecture -->
+      <div id="paths-container"></div>
 
       <!-- Cost Comparison Table -->
       <section>
@@ -238,6 +259,7 @@
        ═══════════════════════════════════════════════ -->
   <script src="js/i18n.js"></script>
   <script src="js/table.js"></script>
+  <script src="js/paths.js"></script>
   <script src="js/cards.js"></script>
   <script src="js/alerts.js"></script>
   <script src="js/delivery.js"></script>

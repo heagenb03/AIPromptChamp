@@ -57,7 +57,15 @@ const delivery = (() => {
         ? `$${opt.order_minimum.toFixed(2)}`
         : i18n.t("table.na");
 
-    const total = `$${opt.estimated_weekly_total.toFixed(2)}`;
+    let totalCell;
+    if (opt.subsidy_applied && opt.subsidy_applied > 0) {
+      totalCell = `
+        <span class="line-through text-gray-400 text-xs">$${opt.market_rate.toFixed(2)}</span>
+        <span class="block text-emerald-600 font-semibold">$${opt.final_cost.toFixed(2)}</span>
+        <span class="block text-xs text-emerald-500">-$${opt.subsidy_applied.toFixed(2)} ${i18n.t("delivery.subsidy_discount")}</span>`;
+    } else {
+      totalCell = `$${opt.estimated_weekly_total.toFixed(2)}`;
+    }
 
     const sameDay = opt.same_day ? i18n.t("table.yes") : i18n.t("table.no");
 
@@ -73,26 +81,64 @@ const delivery = (() => {
         <td class="px-4 py-3 text-sm">${badgeCell}</td>
         <td class="px-4 py-3 text-sm">${feeDisplay}</td>
         <td class="px-4 py-3 text-sm text-gray-600">${orderMin}</td>
-        <td class="px-4 py-3 text-sm font-semibold text-gray-900">${total}</td>
+        <td class="px-4 py-3 text-sm font-semibold text-gray-900">${totalCell}</td>
         <td class="px-4 py-3 text-sm text-gray-600">${sameDay}</td>
       </tr>`;
   }
 
   /**
-   * render(options, container) — Build and inject the full delivery table.
-   * Clears the container if options is empty/null.
-   * @param {Array}       options   — delivery_options from API response
-   * @param {HTMLElement} container — target DOM element
+   * _buildBatchedRow(bd) — Build the highlighted OptimalEats Batched Delivery row.
+   * @param {Object} bd — batched_delivery object from API
+   * @returns {string} HTML string
    */
-  function render(options, container) {
+  function _buildBatchedRow(bd) {
+    const snapBadge = bd.snap_accepted
+      ? _pill(i18n.t("delivery.snap"), "bg-emerald-100 text-emerald-700")
+      : "";
+    const ebtBadge = bd.ebt_accepted
+      ? _pill(i18n.t("delivery.ebt"), "bg-blue-100 text-blue-700")
+      : "";
+    const badgeCell = [snapBadge, ebtBadge].filter(Boolean).join(" ") || i18n.t("table.na");
+
+    const feeDisplay = _pill(
+      `$${bd.cost_per_delivery.toFixed(2)}`,
+      "bg-amber-100 text-amber-700 border border-amber-200"
+    );
+
+    return `
+      <tr class="bg-amber-50 border-l-4 border-amber-400">
+        <td class="px-4 py-3 text-sm">
+          <span class="font-semibold text-amber-900">${i18n.t("batched.provider")}</span>
+          <span class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-amber-400 text-white">${i18n.t("batched.recommended")}</span>
+          <span class="block text-xs text-amber-700 font-normal mt-0.5">${i18n.t("batched.eta", { hrs: bd.estimated_hrs })}</span>
+          <span class="block text-xs text-gray-400 font-normal mt-0.5">${i18n.t("batched.note")}</span>
+        </td>
+        <td class="px-4 py-3 text-sm">${badgeCell}</td>
+        <td class="px-4 py-3 text-sm">${feeDisplay}</td>
+        <td class="px-4 py-3 text-sm text-gray-500">${i18n.t("table.na")}</td>
+        <td class="px-4 py-3 text-sm font-semibold text-amber-800">$${bd.cost_per_delivery.toFixed(2)}${i18n.t("batched.per_delivery")}</td>
+        <td class="px-4 py-3 text-sm text-gray-500">${i18n.t("table.na")}</td>
+      </tr>`;
+  }
+
+  /**
+   * render(options, container, batchedDelivery?) — Build and inject the full delivery table.
+   * Clears the container if options is empty/null and no batchedDelivery.
+   * @param {Array}       options         — delivery_options from API response
+   * @param {HTMLElement} container       — target DOM element
+   * @param {Object|null} batchedDelivery — batched_delivery from API response (optional)
+   */
+  function render(options, container, batchedDelivery) {
     if (!container) return;
 
-    if (!options || options.length === 0) {
+    const hasOptions = options && options.length > 0;
+    if (!hasOptions && !batchedDelivery) {
       container.innerHTML = "";
       return;
     }
 
-    const rows = options.map(_buildRow).join("");
+    const batchedRow = batchedDelivery ? _buildBatchedRow(batchedDelivery) : "";
+    const rows = hasOptions ? options.map(_buildRow).join("") : "";
 
     container.innerHTML = `
       <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
@@ -108,6 +154,7 @@ const delivery = (() => {
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 bg-white">
+            ${batchedRow}
             ${rows}
           </tbody>
         </table>

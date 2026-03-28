@@ -6,3 +6,4 @@ scikit-learn==1.6.1
 numpy==2.2.3
 python-dotenv==1.0.1
 pytest==9.0.2
+anthropic==0.49.0

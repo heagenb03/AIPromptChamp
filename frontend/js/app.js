@@ -30,16 +30,22 @@ const app = (() => {
     elNeedAlert,
     elTableContainer,
     elAlertContainer,
+    elVoteBannerContainer,
+    elPathsContainer,
     elDeliveryContainer,
     elDeliveryTableContainer,
     elVoteForm,
     elVoteMsg,
     elLangToggle,
     elResultsSection,
-    elSpinner;
+    elSpinner,
+    elSpinnerText;
 
   /** Caches the most recent API response for lang-change re-renders. */
   let currentData = null;
+
+  /** Set of currently selected cuisine preferences. */
+  const selectedCuisines = new Set();
 
   /* ═══════════════════════════════════════════════════════
    * MOCK DATA
@@ -63,6 +69,7 @@ const app = (() => {
           cold_storage: true,
           hours: "Mon–Fri 9AM–5PM",
           address: "3801 Topping Ave, Kansas City, MO 64129",
+          cuisine_tags: ["american", "hispanic"],
         },
         {
           name: "Community Assistance Council",
@@ -76,6 +83,7 @@ const app = (() => {
           cold_storage: false,
           hours: "Tue & Thu 10AM–2PM",
           address: "10901 Blue Ridge Blvd, Kansas City, MO 64134",
+          cuisine_tags: ["american"],
         },
         {
           name: "Walmart Grocery Delivery",
@@ -89,6 +97,7 @@ const app = (() => {
           cold_storage: false,
           hours: "24/7 online",
           address: "Online/Delivery",
+          cuisine_tags: ["american", "hispanic", "asian", "african_caribbean", "soul_food"],
         },
         {
           name: "Price Chopper (Troost)",
@@ -102,6 +111,7 @@ const app = (() => {
           cold_storage: false,
           hours: "6AM–11PM daily",
           address: "4950 Troost Ave, Kansas City, MO 64110",
+          cuisine_tags: ["american", "hispanic", "asian", "african_caribbean", "soul_food"],
         },
         {
           name: "ALDI (Prospect)",
@@ -115,6 +125,7 @@ const app = (() => {
           cold_storage: false,
           hours: "9AM–8PM daily",
           address: "5600 Prospect Ave, Kansas City, MO 64130",
+          cuisine_tags: ["american", "hispanic", "asian", "african_caribbean", "soul_food"],
         },
       ],
       produce_alert: {
@@ -129,13 +140,30 @@ const app = (() => {
         ],
       },
       delivery_necessity_flag: true,
+      batched_delivery: {
+        cost_per_delivery: 1.50,
+        estimated_hrs: 4,
+        snap_accepted: true,
+        ebt_accepted: true,
+        description: "Shared neighborhood courier",
+        batch_density: 20,
+      },
       delivery_options: [
-        { name: "Walmart Grocery",             snap_accepted: true,  ebt_accepted: true,  delivery_fee: 7.95, order_minimum: 35.00, estimated_weekly_total: 42.95, same_day: true,  cost_tier: "low",    serves_zip: true, notes: "SNAP/EBT accepted" },
-        { name: "Amazon Fresh",                snap_accepted: true,  ebt_accepted: true,  delivery_fee: 9.95, order_minimum: 35.00, estimated_weekly_total: 44.95, same_day: true,  cost_tier: "market", serves_zip: true, notes: "Free with Prime; EBT accepted" },
-        { name: "Instacart (Aldi/Price Chopper)", snap_accepted: true, ebt_accepted: false, delivery_fee: 5.99, order_minimum: 10.00, estimated_weekly_total: 15.99, same_day: true, cost_tier: "low",   serves_zip: true, notes: "Fee varies $3.99–$9.99" },
-        { name: "Dillons/Kroger",              snap_accepted: true,  ebt_accepted: true,  delivery_fee: 9.95, order_minimum: 35.00, estimated_weekly_total: 44.95, same_day: true,  cost_tier: "market", serves_zip: true, notes: "SNAP/EBT accepted" },
-        { name: "Hy-Vee Aisles Online",        snap_accepted: false, ebt_accepted: false, delivery_fee: 9.95, order_minimum: 24.95, estimated_weekly_total: 34.90, same_day: true,  cost_tier: "market", serves_zip: true, notes: "No SNAP/EBT currently" },
+        { name: "Walmart Grocery",             snap_accepted: true,  ebt_accepted: true,  delivery_fee: 7.95, order_minimum: 35.00, estimated_weekly_total: 42.95, same_day: true,  cost_tier: "low",    serves_zip: true, notes: "SNAP/EBT accepted",           market_rate: 42.95, subsidy_applied: 7.95, final_cost: 35.00, subsidy_label: "SNAP/EBT discount applied" },
+        { name: "Amazon Fresh",                snap_accepted: true,  ebt_accepted: true,  delivery_fee: 9.95, order_minimum: 35.00, estimated_weekly_total: 44.95, same_day: true,  cost_tier: "market", serves_zip: true, notes: "Free with Prime; EBT accepted", market_rate: 44.95, subsidy_applied: 9.95, final_cost: 35.00, subsidy_label: "SNAP/EBT discount applied" },
+        { name: "Instacart (Aldi/Price Chopper)", snap_accepted: true, ebt_accepted: false, delivery_fee: 5.99, order_minimum: 10.00, estimated_weekly_total: 15.99, same_day: true, cost_tier: "low",   serves_zip: true, notes: "Fee varies $3.99–$9.99",       market_rate: 15.99, subsidy_applied: 5.99, final_cost: 10.00, subsidy_label: "SNAP/EBT discount applied" },
+        { name: "Dillons/Kroger",              snap_accepted: true,  ebt_accepted: true,  delivery_fee: 9.95, order_minimum: 35.00, estimated_weekly_total: 44.95, same_day: true,  cost_tier: "market", serves_zip: true, notes: "SNAP/EBT accepted",           market_rate: 44.95, subsidy_applied: 9.95, final_cost: 35.00, subsidy_label: "SNAP/EBT discount applied" },
+        { name: "Hy-Vee Aisles Online",        snap_accepted: false, ebt_accepted: false, delivery_fee: 9.95, order_minimum: 24.95, estimated_weekly_total: 34.90, same_day: true,  cost_tier: "market", serves_zip: true, notes: "No SNAP/EBT currently",       market_rate: 34.90, subsidy_applied: 0.0,  final_cost: 34.90, subsidy_label: null },
       ],
+      community_vote: {
+        active: true,
+        deadline: "2026-04-11",
+        zones: [
+          { zip: "66101", need_score: 91, spanish_dominant: true,  label: "Argentine / KCK Downtown" },
+          { zip: "64130", need_score: 82, spanish_dominant: false, label: "East Side KCMO" },
+        ],
+        total_zones: 2,
+      },
     },
     "64110": {
       zip: "64110",
@@ -153,6 +181,7 @@ const app = (() => {
           cold_storage: true,
           hours: "Mon–Fri 8AM–4PM",
           address: "3101 Troost Ave, Kansas City, MO 64109",
+          cuisine_tags: ["american", "hispanic"],
         },
         {
           name: "Bishop Sullivan Center",
@@ -166,6 +195,7 @@ const app = (() => {
           cold_storage: false,
           hours: "Wed & Fri 9AM–12PM",
           address: "6435 Rockhill Rd, Kansas City, MO 64131",
+          cuisine_tags: ["american"],
         },
         {
           name: "Sun Fresh (Troost)",
@@ -179,11 +209,13 @@ const app = (() => {
           cold_storage: false,
           hours: "7AM–10PM daily",
           address: "4001 Troost Ave, Kansas City, MO 64110",
+          cuisine_tags: ["american", "hispanic", "asian", "african_caribbean", "soul_food"],
         },
       ],
       produce_alert: { active: false, pounds: 0, expires_in_hrs: 0, item: null, top_drop_locations: [] },
       delivery_necessity_flag: false,
       delivery_options: [],
+      community_vote: null,
     },
     "64108": {
       zip: "64108",
@@ -201,6 +233,7 @@ const app = (() => {
           cold_storage: true,
           hours: "Mon–Fri 9AM–4PM",
           address: "1015 W Avenida Cesar E Chavez, Kansas City, MO 64108",
+          cuisine_tags: ["hispanic", "american"],
         },
         {
           name: "Cosentino's Price Chopper",
@@ -214,6 +247,7 @@ const app = (() => {
           cold_storage: false,
           hours: "6AM–11PM daily",
           address: "1300 W 12th St, Kansas City, MO 64101",
+          cuisine_tags: ["american", "hispanic", "asian", "african_caribbean", "soul_food"],
         },
       ],
       produce_alert: {
@@ -227,6 +261,7 @@ const app = (() => {
       },
       delivery_necessity_flag: false,
       delivery_options: [],
+      community_vote: null,
     },
   };
 
@@ -241,7 +276,11 @@ const app = (() => {
    */
   async function fetchOptions(zip) {
     try {
-      const res = await fetch(`${API_BASE}/api/options?zip=${encodeURIComponent(zip)}`);
+      let url = `${API_BASE}/api/options?zip=${encodeURIComponent(zip)}`;
+      if (selectedCuisines.size > 0) {
+        url += `&cuisines=${encodeURIComponent([...selectedCuisines].join(","))}`;
+      }
+      const res = await fetch(url);
       if (res.ok) return await res.json();
 
       /* Backend returned an error — try mock */
@@ -253,6 +292,26 @@ const app = (() => {
 
     /* Fallback to mock data */
     return MOCK[zip] || null;
+  }
+
+  /**
+   * fetchParsedZip(query) — POST /api/parse-query to resolve NLP input to a KC ZIP.
+   * @param {string} query — raw user input
+   * @returns {Promise<{zip: string|null, confidence: string, error: string}|null>}
+   */
+  async function fetchParsedZip(query) {
+    try {
+      const res = await fetch(`${API_BASE}/api/parse-query`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+      });
+      if (res.ok) return await res.json();
+      console.warn("parse-query error:", res.status);
+    } catch (err) {
+      console.warn("parse-query unreachable:", err.message);
+    }
+    return null;
   }
 
   /**
@@ -281,7 +340,7 @@ const app = (() => {
    * ═══════════════════════════════════════════════════════ */
 
   /**
-   * _isValidZip(zip) — Must be 5 digits starting with 641.
+   * _isValidZip(zip) — Must be 5 digits starting with 641 (KCMO) or 661 (KCK).
    * @param {string} zip
    * @returns {boolean}
    */
@@ -298,6 +357,11 @@ const app = (() => {
   /** Hide the error message. */
   function _hideError() {
     elZipError.classList.add("hidden");
+  }
+
+  /** Update the spinner's status text. */
+  function _setSpinnerText(key) {
+    if (elSpinnerText) elSpinnerText.textContent = i18n.t(key);
   }
 
   /** Show spinner, hide results. */
@@ -347,11 +411,13 @@ const app = (() => {
     currentData = data;
 
     _renderNeedScore(data.need_score);
+    paths.render(data.options, data.delivery_options, data.batched_delivery, elPathsContainer);
     table.render(data.options, elTableContainer);
     alerts.render(data.produce_alert, elAlertContainer);
+    alerts.renderVoteBanner(data.community_vote, elVoteBannerContainer);
 
-    if (data.delivery_necessity_flag && data.delivery_options && data.delivery_options.length > 0) {
-      delivery.render(data.delivery_options, elDeliveryTableContainer);
+    if (data.delivery_necessity_flag && (data.delivery_options?.length > 0 || data.batched_delivery)) {
+      delivery.render(data.delivery_options, elDeliveryTableContainer, data.batched_delivery);
       elDeliveryContainer.classList.remove("hidden");
     } else {
       elDeliveryContainer.classList.add("hidden");
@@ -368,14 +434,38 @@ const app = (() => {
   /** Triggered on button click or Enter key. */
   async function _handleSearch() {
     _hideError();
-    const zip = elZipInput.value.trim();
+    const raw = elZipInput.value.trim();
 
-    if (!_isValidZip(zip)) {
+    if (!raw) {
       _showError("zip.error_invalid");
       return;
     }
 
-    _showLoading();
+    let zip;
+    if (_isValidZip(raw)) {
+      // Direct ZIP path — no NLP call needed
+      zip = raw;
+      _setSpinnerText("spinner.searching");
+      _showLoading();
+    } else {
+      // NLP path — ask Claude to interpret the location
+      _setSpinnerText("interpreting_label");
+      _showLoading();
+      const parsed = await fetchParsedZip(raw);
+      if (!parsed || !parsed.zip) {
+        _hideLoading();
+        _showError("nlp_error_label");
+        return;
+      }
+      zip = parsed.zip;
+      // Show a brief confirmation when the ZIP was inferred, not typed explicitly
+      if (parsed.confidence === "low" && parsed.interpreted_as) {
+        elZipError.textContent = i18n.t("nlp_interpreted_as", { location: parsed.interpreted_as });
+        elZipError.classList.remove("hidden");
+      }
+      _setSpinnerText("spinner.searching");
+    }
+
     const data = await fetchOptions(zip);
     _hideLoading();
 
@@ -413,10 +503,12 @@ const app = (() => {
   function _handleLangChange() {
     if (currentData) {
       _renderNeedScore(currentData.need_score);
+      paths.render(currentData.options, currentData.delivery_options, currentData.batched_delivery, elPathsContainer);
       table.render(currentData.options, elTableContainer);
       alerts.render(currentData.produce_alert, elAlertContainer);
-      if (currentData.delivery_necessity_flag && currentData.delivery_options && currentData.delivery_options.length > 0) {
-        delivery.render(currentData.delivery_options, elDeliveryTableContainer);
+      alerts.renderVoteBanner(currentData.community_vote, elVoteBannerContainer);
+      if (currentData.delivery_necessity_flag && (currentData.delivery_options?.length > 0 || currentData.batched_delivery)) {
+        delivery.render(currentData.delivery_options, elDeliveryTableContainer, currentData.batched_delivery);
       }
     }
   }
@@ -435,6 +527,8 @@ const app = (() => {
     elNeedAlert             = document.getElementById("need-alert");
     elTableContainer        = document.getElementById("table-container");
     elAlertContainer        = document.getElementById("alert-container");
+    elVoteBannerContainer   = document.getElementById("vote-banner-container");
+    elPathsContainer        = document.getElementById("paths-container");
     elDeliveryContainer     = document.getElementById("delivery-container");
     elDeliveryTableContainer = document.getElementById("delivery-table-container");
     elVoteForm              = document.getElementById("vote-form");
@@ -442,10 +536,27 @@ const app = (() => {
     elLangToggle            = document.getElementById("lang-toggle");
     elResultsSection        = document.getElementById("results-section");
     elSpinner               = document.getElementById("spinner");
+    elSpinnerText           = document.getElementById("spinner-text");
 
     elZipBtn.addEventListener("click", _handleSearch);
     elZipInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") _handleSearch();
+    });
+
+    /* Cuisine pill toggle behaviour */
+    document.querySelectorAll(".cuisine-pill").forEach((pill) => {
+      pill.addEventListener("click", () => {
+        const cuisine = pill.dataset.cuisine;
+        if (selectedCuisines.has(cuisine)) {
+          selectedCuisines.delete(cuisine);
+          pill.classList.remove("bg-white/30", "border-white", "text-white");
+          pill.classList.add("border-white/30", "text-white/80");
+        } else {
+          selectedCuisines.add(cuisine);
+          pill.classList.add("bg-white/30", "border-white", "text-white");
+          pill.classList.remove("border-white/30", "text-white/80");
+        }
+      });
     });
 
     elLangToggle.addEventListener("click", () => i18n.toggleLang());

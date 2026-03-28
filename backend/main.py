@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 
 from backend.api.alerts import router as alerts_router
 from backend.api.options import router as options_router
+from backend.api.parse_query import router as parse_query_router
 from backend.data.cache import load_all
 
 logging.basicConfig(
@@ -49,6 +50,7 @@ app.add_middleware(
 # API routes
 app.include_router(options_router, prefix="/api")
 app.include_router(alerts_router, prefix="/api")
+app.include_router(parse_query_router, prefix="/api")
 
 # Serve frontend as static files (Person 2's work)
 if _FRONTEND_DIR.exists():

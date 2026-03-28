@@ -92,6 +92,7 @@ const table = (() => {
     const cols = [
       "table.col_option", "table.col_type", "table.col_cost",
       "table.col_distance", "table.col_transit", "table.col_language",
+      "table.col_cuisine",
     ];
     cols.forEach((key) => {
       const th = document.createElement("th");
@@ -127,7 +128,10 @@ const table = (() => {
       tdName.className = "px-4 py-3 font-medium text-gray-900 whitespace-nowrap";
       tdName.textContent = opt.name;
       if (opt.type === "pantry") {
-        tdName.innerHTML += ' <span class="text-blue-400 text-xs align-middle">▸</span>';
+        const arrow = document.createElement("span");
+        arrow.className = "text-blue-400 text-xs align-middle";
+        arrow.textContent = " \u25B8";
+        tdName.appendChild(arrow);
       }
       tr.appendChild(tdName);
 
@@ -162,6 +166,28 @@ const table = (() => {
       tdLang.className = "px-4 py-3 text-gray-600";
       tdLang.textContent = (opt.languages || []).map((l) => l.toUpperCase()).join(" / ");
       tr.appendChild(tdLang);
+
+      /* Cuisine Tags */
+      const tdCuisine = document.createElement("td");
+      tdCuisine.className = "px-4 py-3";
+      const tags = opt.cuisine_tags || [];
+      const CUISINE_COLORS = {
+        american:           "bg-blue-100 text-blue-700",
+        hispanic:           "bg-orange-100 text-orange-700",
+        asian:              "bg-purple-100 text-purple-700",
+        african_caribbean:  "bg-rose-100 text-rose-700",
+        soul_food:          "bg-amber-100 text-amber-700",
+      };
+      tags.forEach((tag) => {
+        const badge = document.createElement("span");
+        const colorCls = CUISINE_COLORS[tag] || "bg-gray-100 text-gray-600";
+        badge.className = `inline-block px-2 py-0.5 rounded-full text-xs font-medium mr-1 mb-1 ${colorCls}`;
+        const i18nKey = "cuisine." + tag;
+        badge.setAttribute("data-i18n", i18nKey);
+        badge.textContent = i18n.t(i18nKey);
+        tdCuisine.appendChild(badge);
+      });
+      tr.appendChild(tdCuisine);
 
       tbody.appendChild(tr);
     });

@@ -17,6 +17,7 @@ class FoodOption(BaseModel):
     cold_storage: bool
     hours: str
     address: str
+    cuisine_tags: list[str] = Field(default_factory=list)
 
 
 class DropLocation(BaseModel):
@@ -45,15 +46,45 @@ class DeliveryOption(BaseModel):
     cost_tier: Literal["free", "low", "market"]
     serves_zip: bool
     notes: str
+    market_rate: float | None = None
+    subsidy_applied: float | None = None
+    final_cost: float | None = None
+    subsidy_label: str | None = None
+
+
+class BatchedDelivery(BaseModel):
+    cost_per_delivery: float
+    estimated_hrs: int
+    snap_accepted: bool = True
+    ebt_accepted: bool = True
+    description: str
+    batch_density: int
+
+
+class VoteZone(BaseModel):
+    zip: str
+    need_score: int
+    spanish_dominant: bool
+    label: str
+
+
+class CommunityVote(BaseModel):
+    active: bool = True
+    deadline: str
+    zones: list[VoteZone] = Field(default_factory=list)
+    total_zones: int = 2
 
 
 class OptionsResponse(BaseModel):
     zip: str
     need_score: int
+    need_score_breakdown: dict[str, float] = Field(default_factory=dict)
     options: list[FoodOption]
     produce_alert: ProduceAlert
     delivery_necessity_flag: bool = False
     delivery_options: list[DeliveryOption] = Field(default_factory=list)
+    batched_delivery: BatchedDelivery | None = None
+    community_vote: CommunityVote | None = None
 
 
 class AlertsResponse(BaseModel):
@@ -73,3 +104,14 @@ class VoteRequest(BaseModel):
 class VoteResponse(BaseModel):
     status: str
     message: str
+
+
+class ParseQueryRequest(BaseModel):
+    query: str = Field(..., max_length=500)
+
+
+class ParseQueryResponse(BaseModel):
+    zip: str | None
+    confidence: Literal["high", "low"] | None = None
+    interpreted_as: str | None = None
+    error: str | None = None

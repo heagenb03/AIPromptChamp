@@ -60,7 +60,7 @@ const cards = (() => {
     tr.className = "card-row";
 
     const td = document.createElement("td");
-    td.colSpan = 6;
+    td.colSpan = 7;
     td.className = "px-0 py-0";
 
     const card = document.createElement("div");
@@ -69,12 +69,18 @@ const cards = (() => {
       "bg-gradient-to-br from-blue-50 to-white shadow-md animate-slideDown";
 
     card.innerHTML = `
-      <div class="flex items-start justify-between mb-4">
+      <div class="flex items-start justify-between mb-3">
         <div>
           <h3 class="text-lg font-bold text-gray-900">${option.name}</h3>
-          <p class="text-sm text-gray-500">${i18n.t("type." + option.type)}</p>
+          <p class="text-sm text-gray-500">${option.type === "pantry" ? i18n.t("drop_zone_label") : i18n.t("type." + option.type)}</p>
         </div>
         <button class="card-close text-gray-400 hover:text-gray-600 transition-colors text-xl leading-none" aria-label="Close">&times;</button>
+      </div>
+
+      <div class="flex flex-wrap gap-2 mb-4">
+        ${option.cold_storage ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-200">❄️ ${i18n.t("cold_storage_badge")}</span>` : ""}
+        ${option.transit_accessible ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">🚌 ${i18n.t("transit_badge")}</span>` : ""}
+        ${!option.id_required ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-200">✓ ${i18n.t("no_id_badge")}</span>` : ""}
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
@@ -101,7 +107,7 @@ const cards = (() => {
           ${_icon("M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129")}
           <div>
             <p class="font-semibold text-gray-700" data-i18n="card.languages">${i18n.t("card.languages")}</p>
-            <p class="text-gray-600">${(option.languages || []).map((l) => l.toUpperCase()).join(", ")}</p>
+            <div class="flex flex-wrap gap-1 mt-0.5">${(option.languages || []).map((l) => `<span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">${l.toUpperCase()}</span>`).join("")}</div>
           </div>
         </div>
 
