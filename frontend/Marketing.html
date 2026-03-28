@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OptimalEats — Smart City Logistics Command</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green-deep: #0f2e1a;
+  --green-mid: #1d4a2e;
+  --green-bright: #2d6b42;
+  --green-light: #7ecfa0;
+  --terracotta: #c84b2f;
+  --amber: #e8941a;
+  --cream: #f5f0e8;
+  --white: #fff;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--green-deep); font-family: 'DM Sans', sans-serif; min-height: 100vh; color: var(--cream); overflow-x: hidden; }
+
+/* ---- NAVIGATION ---- */
+.topnav {
+  background: var(--green-deep); border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 64px;
+  position: sticky; top: 0; z-index: 1000;
+}
+.nav-brand { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 2px; color: var(--white); }
+.nav-brand span { color: var(--green-light); }
+.nav-tabs { display: flex; gap: 8px; }
+.nav-tab {
+  padding: 8px 20px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.5);
+  border-radius: 40px; cursor: pointer; transition: all 0.2s; border: none; background: transparent;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.nav-tab:hover { color: var(--white); background: rgba(255,255,255,0.05); }
+.nav-tab.active { color: var(--green-deep); background: var(--green-light); }
+
+/* ---- PAGE STRUCTURE ---- */
+.page { display: none; padding: 40px; max-width: 1300px; margin: 0 auto; }
+.page.active { display: block; animation: fadeIn 0.4s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ---- HERO & STATS ---- */
+.hero-band {
+  background: linear-gradient(135deg, var(--green-mid) 0%, var(--green-deep) 100%);
+  border-radius: 16px; padding: 48px; margin-bottom: 32px;
+  display: flex; justify-content: space-between; align-items: center;
+  border: 1px solid rgba(255,255,255,0.07); position: relative;
+}
+.hero-text h1 { font-family: 'Bebas Neue', sans-serif; font-size: 72px; line-height: 0.9; color: var(--white); margin-bottom: 12px; }
+.hero-text h1 em { color: var(--green-light); font-style: normal; }
+.hero-sub { font-size: 18px; color: rgba(255,255,255,0.6); max-width: 600px; line-height: 1.5; }
+
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
+.card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 32px; }
+.card-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--green-light); margin-bottom: 16px; letter-spacing: 1px; text-transform: uppercase; }
+
+/* ---- AUDIENCE CARDS ---- */
+.audience-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
+.aud-card {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; padding: 40px; display: flex; flex-direction: column;
+}
+.aud-tag { 
+  background: rgba(232,148,26,0.12); color: var(--amber); padding: 4px 12px; 
+  border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; align-self: flex-start; margin-bottom: 16px;
+}
+.aud-title { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--white); margin-bottom: 16px; letter-spacing: 1px; }
+.aud-body { font-size: 15px; color: rgba(255,255,255,0.7); line-height: 1.7; margin-bottom: 24px; flex-grow: 1; }
+.aud-stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 56px; line-height: 1; color: var(--white); }
+.aud-stat-lbl { font-size: 12px; text-transform: uppercase; font-weight: 700; color: rgba(255,255,255,0.4); letter-spacing: 1.5px; }
+
+/* ---- MARKETING GRID ---- */
+.m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+.m-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 40px; }
+.m-card.full { grid-column: 1 / -1; }
+.m-num { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--green-light); margin-bottom: 12px; text-transform: uppercase; }
+.m-title { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--white); margin-bottom: 16px; letter-spacing: 1px; }
+.m-body { font-size: 15px; color: rgba(255,255,255,0.7); line-height: 1.7; margin-bottom: 24px; }
+.m-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+.m-pill { background: rgba(126,207,160,0.12); color: var(--green-light); padding: 6px 16px; border-radius: 40px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+
+/* ---- KPI BOXES ---- */
+.kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+.kpi-box {
+  background: rgba(126,207,160,0.06); border: 1px solid rgba(126,207,160,0.2);
+  border-radius: 12px; padding: 24px; margin-bottom: 16px;
+}
+.kpi-box.alt { border-color: var(--terracotta); background: rgba(200,75,47,0.06); }
+.kpi-name { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--green-light); margin-bottom: 8px; display: block; }
+.kpi-val { font-family: 'Bebas Neue', sans-serif; font-size: 42px; color: var(--white); }
+.kpi-desc { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.5; margin-top: 10px; }
+
+@media (max-width: 900px) { .grid-3, .m-grid, .audience-grid, .kpi-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="nav-brand">Optimal<span>Eats</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('overview')">Overview</button>
+    <button class="nav-tab" onclick="showPage('audience')">Audience</button>
+    <button class="nav-tab" onclick="showPage('marketing')">Marketing</button>
+    <button class="nav-tab" onclick="showPage('metrics')">Success Metrics</button>
+  </div>
+  <div class="nav-meta" style="font-size: 10px; opacity: 0.4;">KC LOGISTICS COMMAND · 2026</div>
+</nav>
+
+<div id="page-overview" class="page active">
+  <div class="hero-band">
+    <div class="hero-text">
+      <h1>Algorithmic <em>Equity</em></h1>
+      <p class="hero-sub">Fixing last-mile municipal logistics in Kansas City's highest-need neighborhoods. Initializing $500K pilot for everyday survival.</p>
+    </div>
+    <div style="text-align: right;">
+      <div class="aud-stat-val" style="color: var(--green-light);">$500K</div>
+      <div class="aud-stat-lbl">Municipal Grant</div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="aud-stat-val">1in7</div>
+      <div class="aud-stat-lbl">KC Food Insecure</div>
+      <p style="font-size: 12px; margin-top: 12px; opacity: 0.5;">A 10-year high for the region.</p>
+    </div>
+    <div class="card">
+      <div class="aud-stat-val" style="color: #f4845f;">3M Lbs</div>
+      <div class="aud-stat-lbl">Federal Cuts</div>
+      <p style="font-size: 12px; margin-top: 12px; opacity: 0.5;">Primary food bank supply lost.</p>
+    </div>
+    <div class="card">
+      <div class="aud-stat-val" style="color: var(--green-light);">80%</div>
+      <div class="aud-stat-lbl">Software Margins</div>
+      <p style="font-size: 12px; margin-top: 12px; opacity: 0.5;">Targeting $3.50 delivery cost.</p>
+    </div>
+  </div>
+</div>
+
+<div id="page-audience" class="page">
+  <div class="audience-grid">
+    <div class="aud-card">
+      <div class="aud-tag">ZIP 66101: Cultural Core</div>
+      <div class="aud-title">Hispanic Outreach</div>
+      <p class="aud-body">This area has a 62.8% Hispanic population and a 44.6% poverty rate. Marketing here requires established community trust to overcome institutional skepticism.</p>
+      <div class="aud-stat-val">62.8%</div>
+      <div class="aud-stat-lbl">Hispanic Pop.</div>
+    </div>
+
+    <div class="aud-card">
+      <div class="aud-tag">ZIP 64127: Transit Desert</div>
+      <div class="aud-title">Time Recovery</div>
+      <p class="aud-body">45% of households lack a vehicle. Following the closure of the Prospect Ave Save-A-Lot, these residents spend hours on transit to secure basic groceries.</p>
+      <div class="aud-stat-val">45%</div>
+      <div class="aud-stat-lbl">No Vehicle</div>
+    </div>
+
+    <div class="aud-card">
+      <div class="aud-tag">ZIP 66105: Last-Mile Anchor</div>
+      <div class="aud-title">Ground Zero</div>
+      <p class="aud-body">This ZIP faces the region's highest vehicle-less rate at 51%. Our strategy here focuses on SMS-first ordering to bypass data poverty.</p>
+      <div class="aud-stat-val">51%</div>
+      <div class="aud-stat-lbl">No Vehicle</div>
+    </div>
+  </div>
+</div>
+
+<div id="page-marketing" class="page">
+  <div class="m-grid">
+    <div class="m-card">
+      <div class="m-num">1. The Human API (4LK)</div>
+      <div class="m-title">Hispanic Outreach Bridge</div>
+      <div class="m-body">Utilizing Four Local Kids (4LK) as trusted bilingual proxies in ZIP 66101. Messaging centers on shared neighborhood prosperity and cultural competence to secure grassroots trust.</div>
+      <div class="m-pills">
+        <span class="m-pill">Bilingual Radio</span>
+        <span class="m-pill">El Centro Academy Hubs</span>
+      </div>
+    </div>
+
+    <div class="m-card">
+      <div class="m-num">2. The Transit Corridor Rescue</div>
+      <div class="m-title">The No-Car Narrative</div>
+      <div class="m-body">Geofenced marketing at bus stops along Prospect and Independence Ave. Highlighting the $1.50 Batched Delivery. Reclaiming time lost to the closure of local grocers. This strategy targets ZIP 64127 (45% no vehicle) and ZIP 66105 (51% no vehicle) where transit poverty is acute.</div>
+      <div class="m-pills">
+        <span class="m-pill">SMS-First Onboarding</span>
+        <span class="m-pill">Zero-Data Access</span>
+      </div>
+    </div>
+
+    <div class="m-card full">
+      <div class="m-num">3. The Logistical Glue</div>
+      <div class="m-title">Neighborhood Drop Zones</div>
+      <div class="m-body">Every closed pantry door becomes a registration point. We integrate the real-time inventory of 5 Major Hubs—including Harvesters, Bishop Sullivan, and Della Lamb—into a single routing system that entirely bypasses last-mile residential fragmentation.</div>
+      <div class="m-pills">
+        <span class="m-pill">Hub Integration</span>
+        <span class="m-pill">Inventory Aggregation</span>
+        <span class="m-pill">Batch Optimization</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="page-metrics" class="page">
+  <div class="kpi-grid">
+    <div class="kpi-box">
+      <span class="kpi-name">User Adoption Goal</span>
+      <div class="kpi-val">1,000 Households</div>
+      <p class="kpi-desc">Targeting 1,000 households within ZIPs 66101, 64127, and 66105 in the first 60 days. Reaching this target in these Ground Zero ZIP codes proves the scalability of our human-centric marketing.</p>
+    </div>
+    <div class="kpi-box">
+      <span class="kpi-name">Algorithmic Efficiency</span>
+      <div class="kpi-val">< $4.00</div>
+      <p class="kpi-desc">Batching orders by neighborhood density allows us to drive delivery costs down from $8.00 to $3.50, ensuring long-term municipal sustainability.</p>
+    </div>
+    <div class="kpi-box">
+      <span class="kpi-name">Network Integration</span>
+      <div class="kpi-val">5 Major Hubs</div>
+      <p class="kpi-desc">Unifying Harvesters, Bishop Sullivan, and Della Lamb into one real-time inventory feed to turn silos into a high-velocity logistical network.</p>
+    </div>
+    <div class="kpi-box alt">
+      <span class="kpi-name" style="color: #f4845f;">Municipal ROI</span>
+      <div class="kpi-val">2.5x Value</div>
+      <p class="kpi-desc">Every $1 of the $500K grant unlocks $2.50 in direct food value for families by reclaiming surplus and subsidizing the Delivery Tax.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+</script>
+</body>
+</html>
