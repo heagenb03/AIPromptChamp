@@ -73,8 +73,8 @@ def _cost_tier_order(tier: str) -> int:
 
 
 def _has_transit(option: dict) -> bool:
-    stop_ids = option.get("transit_stop_ids", [])
-    return len(stop_ids) > 0
+    from backend.data.cache import AppCache
+    return option.get("id", "") in AppCache.pantry_transit
 
 
 @router.get("/options", response_model=OptionsResponse)

@@ -40,58 +40,59 @@ def _get(path: str, params: dict[str, Any] | None = None) -> Any:
 # ---------------------------------------------------------------------------
 
 def fetch_pantries() -> list[dict]:
-    data = _get("/challenge/pantries")
-    if data is not None:
-        return data
+    raw = _get("/challenge/pantries")
+    if raw is not None:
+        return raw.get("data", [])
     return _mock_pantries()
 
 
 def fetch_food_atlas() -> list[dict]:
-    data = _get("/challenge/food-atlas")
-    if data is not None:
-        return data
+    raw = _get("/challenge/food-atlas")
+    if raw is not None:
+        return raw.get("data", [])
     return _mock_food_atlas()
 
 
 def fetch_demographics() -> list[dict]:
-    data = _get("/challenge/demographics")
-    if data is not None:
-        return data
+    raw = _get("/challenge/demographics")
+    if raw is not None:
+        return raw.get("data", [])
     return _mock_demographics()
 
 
 def fetch_311_calls() -> list[dict]:
-    data = _get("/challenge/311-calls")
-    if data is not None:
-        return data
+    raw = _get("/challenge/311-calls")
+    if raw is not None:
+        return raw.get("data", [])
     return _mock_311_calls()
 
 
 def fetch_store_closures() -> list[dict]:
-    data = _get("/challenge/store-closures")
-    if data is not None:
-        return data
+    raw = _get("/challenge/store-closures")
+    if raw is not None:
+        return raw.get("data", [])
     return _mock_store_closures()
 
 
 def fetch_transit() -> list[dict]:
-    data = _get("/challenge/transit")
-    if data is not None:
-        return data
+    raw = _get("/challenge/transit")
+    if raw is not None:
+        return raw.get("data", [])
     return _mock_transit()
 
 
 def fetch_supply_alerts() -> dict:
-    data = _get("/challenge/supply-alerts")
-    if data is not None:
-        return data
+    """Returns the full supply-alerts response dict (shape differs from others)."""
+    raw = _get("/challenge/supply-alerts")
+    if raw is not None:
+        return raw
     return _mock_supply_alerts()
 
 
-def fetch_harvest() -> dict:
-    data = _get("/challenge/harvest")
-    if data is not None:
-        return data
+def fetch_harvest() -> list[dict]:
+    raw = _get("/challenge/harvest")
+    if raw is not None:
+        return raw.get("data", [])
     return _mock_harvest()
 
 
@@ -384,9 +385,12 @@ def _mock_supply_alerts() -> dict:
     }
 
 
-def _mock_harvest() -> dict:
+def _mock_harvest() -> list[dict]:
     """After the Harvest priority ZIPs for food rescue."""
-    return {
-        "priority_zips": ["64130", "64127", "64124", "64128", "64108"],
-        "description": "High-need ZIPs flagged for priority food rescue routing",
-    }
+    return [
+        {"zip": "64130", "priority": "critical"},
+        {"zip": "64127", "priority": "critical"},
+        {"zip": "64124", "priority": "high"},
+        {"zip": "64128", "priority": "high"},
+        {"zip": "64108", "priority": "high"},
+    ]

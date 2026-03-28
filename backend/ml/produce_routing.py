@@ -17,7 +17,7 @@ from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
-_MAX_TRANSIT_FREQ = 10.0  # trips/hour — used for normalization
+_MAX_TRANSIT_FREQ = 6.0  # trips/hour cap for normalization
 
 
 @dataclass
@@ -29,18 +29,13 @@ class DropLocation:
 
 
 def _transit_score(pantry: dict) -> float:
-    """Max trips/hour across pantry's bus stops, normalized 0–1."""
+    """Trips/hour for nearest bus stop to this pantry, normalized 0–1."""
     from backend.data.cache import AppCache
 
-    stop_ids: list[str] = pantry.get("transit_stop_ids", [])
-    if not stop_ids:
-        return 0.0
-
-    max_freq = max(
-        AppCache.transit.get(sid, {}).get("trips_per_hour", 0)
-        for sid in stop_ids
-    )
-    return min(max_freq / _MAX_TRANSIT_FREQ, 1.0)
+    pantry_id: str = pantry.get("id", "")
+    transit = AppCache.pantry_transit.get(pantry_id, {})
+    trips = transit.get("trips_per_hour", 0)
+    return min(trips / _MAX_TRANSIT_FREQ, 1.0)
 
 
 def _build_reason(need_score_raw: float, cold_storage: bool, transit: float, lang_es: bool) -> str:
